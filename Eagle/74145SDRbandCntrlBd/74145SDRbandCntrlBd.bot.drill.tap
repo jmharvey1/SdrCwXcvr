@@ -1,0 +1,93 @@
+(.../pcb-gcode-3.6.0.4/pcb-gcode.ulp)
+(Copyright 2005 - 2012 by John Johnson)
+(See readme.txt for licensing terms.)
+(This file generated from the board:)
+(.../74145SDRbandCntrlBd/74145SDRbandCntrlBd.brd)
+(Current profile is .../pcb-gcode-3.6.0.4/profiles/mach.pp  )
+(This file generated 7/29/2018 9:36 PM)
+(Settings from pcb-machine.h)
+(  Tool Size)
+(0.2000  )
+(Z Axis Settings)
+(  High     Up        Down     Drill)
+(12.7000 	2.5400  	-0.1778 	-1.8000 )
+(spindle on time = 3.0000)
+(milling depth = -0.2500)
+(text depth = -0.1270)
+(tool change at 0.0000  0.0000  25.4000 )
+(feed rate xy = F80    )
+(feed rate z  = F100   )
+(Settings from pcb-defaults.h)
+(isolate min = 0.2000)
+(isolate max = 0.5080)
+(isolate step = 0.1000)
+(Generated bottom outlines, bottom drill, )
+(Unit of measure: mm)
+( Tool|       Size       |  Min Sub |  Max Sub |   Count )
+( T01 | 0.600mm 0.0236in | 0.0000in | 0.0000in |       0 )
+( T02 | 0.813mm 0.0320in | 0.0000in | 0.0000in |       0 )
+( T03 | 1.016mm 0.0400in | 0.0000in | 0.0000in |       0 )
+(Metric Mode)
+G21
+(Absolute Coordinates)
+G90
+M05
+G00 Z25.4000 
+G00 X0.0000  Y0.0000  
+M06 T01  ; 0.6000  
+G01 Z0.0000  F100   
+M06 T01  ; 0.6000  
+G00 Z2.5400  
+M03
+G04 P3.000000
+G82 X-7.6200 Y17.7800 Z-1.8000 F100   R2.5400  P1.000000
+G82 X-13.9700 Y17.7800 
+G82 X-16.5100 Y24.1300 
+G82 X-2.5400 Y24.1300 
+M05
+G00 Z25.4000 
+M06 T02  ; 0.8128  
+G01 Z0.0000  F100   
+M06 T02  ; 0.8128  
+G00 Z2.5400  
+M03
+G04 P3.000000
+G82 X-31.7500 Y13.9700 Z-1.8000 F100   R2.5400  P1.000000
+G82 X-31.7500 Y21.5900 
+G82 X-34.2900 Y13.9700 
+G82 X-34.2900 Y21.5900 
+G82 X-16.5100 Y13.9700 
+G82 X-16.5100 Y21.5900 
+G82 X-19.0500 Y13.9700 
+G82 X-19.0500 Y21.5900 
+G82 X-21.5900 Y13.9700 
+G82 X-21.5900 Y21.5900 
+G82 X-24.1300 Y13.9700 
+G82 X-24.1300 Y21.5900 
+G82 X-2.5400 Y7.6200  
+G82 X-2.5400 Y12.7000 
+G82 X-26.6700 Y13.9700 
+G82 X-26.6700 Y21.5900 
+G82 X-29.2100 Y13.9700 
+G82 X-29.2100 Y21.5900 
+M05
+G00 Z25.4000 
+M06 T03  ; 1.0160  
+G01 Z0.0000  F100   
+M06 T03  ; 1.0160  
+G00 Z2.5400  
+M03
+G04 P3.000000
+G82 X-6.3500 Y7.6200  Z-1.8000 F100   R2.5400  P1.000000
+G82 X-8.8900 Y7.6200  
+G82 X-11.4300 Y7.6200  
+G82 X-13.9700 Y7.6200  
+G82 X-16.5100 Y7.6200  
+G82 X-19.0500 Y7.6200  
+G82 X-21.5900 Y7.6200  
+G82 X-24.1300 Y7.6200  
+G82 X-26.6700 Y7.6200  
+T01 
+G00 Z12.7000 
+M05
+M02

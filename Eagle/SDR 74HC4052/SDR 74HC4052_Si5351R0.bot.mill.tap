@@ -1,0 +1,43 @@
+(.../pcb-gcode-3.6.0.4/pcb-gcode.ulp)
+(Copyright 2005 - 2012 by John Johnson)
+(See readme.txt for licensing terms.)
+(This file generated from the board:)
+(.../ SDR 74HC4052/SDR 74HC4052_Si5351R0.brd)
+(Current profile is .../pcb-gcode-3.6.0.4/profiles/mach.pp  )
+(This file generated 2/20/2018 11:31 PM)
+(Settings from pcb-machine.h)
+(  Tool Size)
+(0.2500  )
+(Z Axis Settings)
+(  High     Up        Down     Drill)
+(12.7000 	2.5400  	-0.1778 	-1.7200 )
+(spindle on time = 3.0000)
+(milling depth = -0.2500)
+(text depth = -0.1270)
+(tool change at 0.0000  0.0000  25.4000 )
+(feed rate xy = F80    )
+(feed rate z  = F100   )
+(Settings from pcb-defaults.h)
+(isolate min = 0.1000)
+(isolate max = 0.5080)
+(isolate step = 0.0800)
+(Generated bottom outlines, bottom drill, )
+(Unit of measure: mm)
+(Metric Mode)
+G21
+(Absolute Coordinates)
+G90
+G00 X0.0000  Y0.0000  
+M03
+G04 P3.000000
+G00 Z2.5400  
+G00 X0.0000  Y77.4700 
+G01 Z-0.2500 F100   
+G01 X0.0000  Y0.0000  F80    
+G01 X-100.3300 Y0.0000  
+G01 X-100.3300 Y80.0100 
+G01 X0.0000  Y80.0100 
+G01 X0.0000  Y77.4700 
+G00 Z12.7000 
+M05
+M02
