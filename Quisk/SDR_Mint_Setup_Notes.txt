@@ -55,17 +55,17 @@ You will have to logout and then log back in before the group change is recogniz
 
 Use the PulseAudio Volume Control (found at Menu => Sound&Video => PulseAudio Volume Control)  "Input Devices" tab "Via USB Dongle Analog Stereo" Port: Michrophone volume slider control to set the base line spectrum level to -100 with no signal input applied to the SDR Antenna input connector (ie 50 ohm Dummy load connected to antenna input)
 
-if you are running this on another version of linux then it ma be necessary to rebuild the _quisk.so file
-these ar the general steps needed to rebuild this file:
+if you are running this on another version of linux then it may be necessary to rebuild the _quisk.so file
+these are the general steps needed to rebuild this file:
 Steps:
 
-1 use synaptic package manger to install: build-essential
-2 open a terminal window in the quiskKW4KD folder
-3 compile and install/rebuld using the command: "make" (less the quots)
+1. Use synaptic package manger to install: build-essential
+2. Open a terminal window in the quiskKW4KD folder
+3. Compile and install/rebuld using the command: "make" (less the quots)
 
-If you're experiencing troubles getting the parts and pieces needed to run quisk in place, run "testtools.py"
+If you're experiencing troubles getting the parts and pieces needed to run quisk in place, run "testtool.py"
 It is a stripped down version of quisk that uses the idle terminal as a logger to report the state of startup processes used to get quisk running
-If it sucessfully starts, its a single band receiver pretuned to W1AW (40 Mtrs) 
+If it sucessfully starts, its becomes a single band receiver pretuned to W1AW (40 Mtrs) 
 
 QUISK DeskTop Launcher:
 the "command" I use in my shortcut to launch QUISK:
@@ -82,11 +82,12 @@ In the ".quisk_conf.py" file (in the "home" directory) you could add the followi
             #waterfall_palette = 'C'
 
 Then un-comment one at a time,  to see if you like one of these color schemes better than the default "A" mode. 
-I kind of liked "C" the best on my computer. 
-But to be honest screen real-estate is so precious on setup here, I seldom run QUISK with the waterfall active.
+I kind of liked "C" colors on my computer. 
+But to be honest, screen real-estate is so precious on the setup here, I seldom run QUISK with the waterfall active.
 
 BTW, there are other color options for the control screens as well:
-
+to test/see/use them, add these lines to the .quisk_conf.py
+ 
             #color_scheme = 'B'
             #color_scheme = 'C'
 
