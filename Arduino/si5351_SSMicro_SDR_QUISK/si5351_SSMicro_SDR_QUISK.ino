@@ -1,4 +1,8 @@
 /*
+ * JMH 20190911
+ * Reworked portions of this sketch to improve support the use of external manual keying
+ * JMH 20190815
+ * Added pin A2 to band selection scheme to support 8 band change (80 through 10 meters)
  * JMH 20180709
  * Revised sketch to include support for CW Key Stroke keying via USB serial port; On the computer side using modified versions of QUISK & FLDIGI to generate & send the data stream
  * JMH 20180514
@@ -57,6 +61,8 @@ boolean SetTX = false;
 boolean KeyClosed = false;
 boolean PTT = false;
 boolean DldPTToff = false;
+boolean KeyActive = false; //Used to recognize external manual keying activity
+int contactcntr =0;
 int spd =0;
 int loopcnt = 0;   //delays turning off at the end of what had been a period of active streaming of key data commands
 //boolean TXRFON = false;
@@ -94,6 +100,8 @@ void setup()
   digitalWrite(A0, LOW);
   pinMode(A1, OUTPUT);
   digitalWrite(A1, LOW);
+  pinMode(A2, OUTPUT);
+  digitalWrite(A2, LOW);
   digitalWrite(PTTPin, LOW); //Set T/R Relay to receive
   //digitalWrite(10, HIGH);
   inputString.reserve(200);
@@ -103,107 +111,177 @@ void setup()
 
 void loop()
 {
-   int KeyOpen = digitalRead(KeyPin);//read Morse Straight Key input pin 
+   int KeyOpen = digitalRead(KeyPin);//read Morse Straight Key input pin; Will be high (or int 1) when SSmicro key input is open
    if ( MyserialEvent()){  // check micro serial port for activity
       Serial.print(inputString);
       Serial.println(": QUISK msg String"); //echo back new rcvd instruction from QUISK
-      String CMDstr = inputString.substring(0, 2);
-      //String CMDptt = inputString.substring(0, 2);
-      if( CMDstr.equals("RF")){
-        inputString = inputString.substring(2);
-        RXcenterFreq = inputString.toFloat();
-        SetRX = true;
-        if(SetRX){
-          sendFrequency(RXcenterFreq);
-          SetRX = false;
+      if(!KeyActive){ // if the SSmcro is being actively manually keyed, ignore commands/signals coming from the computer
+        String CMDstr = inputString.substring(0, 2);
+        //String CMDptt = inputString.substring(0, 2);
+        if( CMDstr.equals("RF")){
+          inputString = inputString.substring(2);
+          RXcenterFreq = inputString.toFloat();
+          SetRX = true;
+          if(SetRX){
+            sendFrequency(RXcenterFreq);
+            SetRX = false;
+          }
+          Serial.print("Clock0/1 (RX) Freq: ");
+          Serial.println(RXcenterFreq);
         }
-        Serial.print("Clock0/1 (RX) Freq: ");
-        Serial.println(RXcenterFreq);
-      }
-      else if( CMDstr.equals("TX")){
-        inputString = inputString.substring(2);
-        TXfreq = inputString.toFloat();
-        Serial.println(TXfreq);
-      }
-      else if(inputString.substring(0, 5).equals("PTTON")){
-        inputString = "";
-        PTT = true;
-        DldPTToff = false;
-        if(!timesUP) KeyOpen = 1; // if we don't have an active data stream, Force key input to look open at onset of ptt going active
-        Serial.println("Set PTT = True");
-        digitalWrite(PTTPin, HIGH);  //Set T/R Relay to Transmit position
-      }
-      else if(inputString.substring(0, 6).equals("PTTOFF")){
-        inputString = "";
-        if(KeyStream[0]){
+        else if( CMDstr.equals("TX")){
+          inputString = inputString.substring(2);
+          TXfreq = inputString.toFloat();
+          Serial.println(TXfreq);
+        }
+        else if(inputString.substring(0, 5).equals("PTTON")){
+          inputString = "";
+          PTT = true;
+          DldPTToff = false;
+          if(!timesUP) KeyOpen = 1; // if we don't have an active data stream, Force key input to look open at onset of ptt going active
+          Serial.println("Set PTT = True");
+          digitalWrite(PTTPin, HIGH);  //Set T/R Relay to Transmit position
+        }
+        else if(inputString.substring(0, 6).equals("PTTOFF")){
+          inputString = "";
+          if(KeyStream[0]){
+            int KSptr;
+            bool kydwn = false;
+            for (KSptr = 0; KSptr < 255; KSptr++) {
+              if( KeyStream[KSptr]==0) break;
+            }
+            for (int i = 0; i < KSptr; i++) {
+              if( KeyStream[i]<90) kydwn = true;
+            }
+            if(kydwn){
+              DldPTToff = true;
+              Serial.println("Set DldPTToff = true");
+              Serial.print("WPM: ");
+              Serial.println(spd);
+            }
+            else{
+              PTT = false;
+              Serial.println("Set PTT = False Active stream bt no keydwn data");
+              Serial.print("WPM: ");
+              Serial.println(spd);
+            }
+          }
+          else{ 
+            PTT = false;
+            Serial.println("Set PTT = False");
+            Serial.print("WPM: ");
+            Serial.println(spd);
+          }
+          
+          //digitalWrite(PTTPin, LOW);  //Set T/R Relay to receive; defer this action until the keyclosed manual input goes high or the stream data sends a key high command
+        }
+        else if(inputString.substring(0, 2).equals("KS")){ // found info related to cw keying sent by host computer (QUISK) via USB serial port
+          // concatenate new keying command(s) with existing stream data
+          // 1st, Find the last cmd in the key data buffer
           int KSptr;
-          bool kydwn = false;
           for (KSptr = 0; KSptr < 255; KSptr++) {
             if( KeyStream[KSptr]==0) break;
           }
-          for (int i = 0; i < KSptr; i++) {
-            if( KeyStream[i]<90) kydwn = true;
+          // now starting at the index ptr just past the the last command, copy in the new set of commands
+          for (int i = 2; i < inputString.length(); ++i) {
+            KeyStream[KSptr++] = inputString[i];
+            if(!inputString[i]) break;
+            if(KSptr>=254) break;
           }
-          if(kydwn){
-            DldPTToff = true;
-            Serial.println("Set DldPTToff = true");
-            Serial.print("WPM: ");
-            Serial.println(spd);
-          }
-          else{
-            PTT = false;
-            Serial.println("Set PTT = False Active stream bt no keydwn data");
-            Serial.print("WPM: ");
-            Serial.println(spd);
-          }
+          KeyStream[254]= 0;
+          inputString = "";// clr the usb serial text buffer for next serial message
+          ///Serial.println(KeyStream); //echo back current CW Key command data buffer
         }
-        else{ 
-          PTT = false;
-          Serial.println("Set PTT = False");
-          Serial.print("WPM: ");
-          Serial.println(spd);
-        }
+        else stringComplete = false;
+        inputString = "";
+      }
+      else{
         
-        //digitalWrite(PTTPin, LOW);  //Set T/R Relay to receive; defer this action until the keyclosed manual input goes high or the stream data sends a key high command
+        inputString = "";
       }
-      else if(inputString.substring(0, 2).equals("KS")){ // found info related to cw keying sent by host computer (QUISK) via USB serial port
-        // concatenate new keying command(s) with existing stream data
-        // 1st, Find the last cmd in the key data buffer
-        int KSptr;
-        for (KSptr = 0; KSptr < 255; KSptr++) {
-          if( KeyStream[KSptr]==0) break;
-        }
-        // now starting at the index ptr just past the the last command, copy in the new set of commands
-        for (int i = 2; i < inputString.length(); ++i) {
-          KeyStream[KSptr++] = inputString[i];
-          if(!inputString[i]) break;
-          if(KSptr>=254) break;
-        }
-        KeyStream[254]= 0;
-        inputString = "";// clr the usb serial text buffer for next serial message
-        ///Serial.println(KeyStream); //echo back current CW Key command data buffer
-      }
-      else stringComplete = false;
-      inputString = "";
    }//end if Stringcomplete is true
-   if(timesUP){
-    if(millis()>timesUP)// we have been working with active usb cw keying data; its now time go check to see what to do next (cw keying wise)
-    { 
-     getNxtKeyStroke(true);
+   else if(KeyStream[0]== 0){ //Only look at external manual key signals when no active streaming is being processed
+    //Start Manual keying  /////////////////////////////////////////////////////////////////////////////////////////////////////
+    if(!KeyOpen){ // looks like SSMicro/Radio is being manually keyed by an external key
+      //KeyDown
+      
+      if(contactcntr >0 & KeyClosed) contactcntr =0; //Contact DeBounce reset
+      contactcntr +=1;
+      if(contactcntr >15){ //Contact DeBounce check/pass
+        contactcntr =0;
+//       if(true){
+        // First, place TR relay in TX position
+        if (!PTT){ //if T/R relay is not in the TX position, Give it a chance to pickup before applying carrier
+          timesUP = 5+millis();
+          while (millis() < timesUP) {
+            digitalWrite(PTTPin, HIGH);  //Set T/R Relay to Transmit position
+            PTT = true;
+          }
+          timesUP =0;
+        }
+        //Next, notify QUISK of external KeyDown State (Mainly to kill the receiver)
+        Serial.println("KEYDWN");
+        if(!KeyClosed){
+          //SetRX = false;
+          StartTX();
+//          if(KeyClosed) Serial.println("KEYDWN");
+          KeyActive = true;
+        }
+      }
     }
-   }
-   else getNxtKeyStroke(false); //Keystroke buffer has been empty; But Need to check and see if that's still the case
+    else{ //Manual KeyUp
+//      if(PTT){
+//        Serial.print("cntr: ");
+//        Serial.print(contactcntr);
+//        Serial.print(";\ttimesUP: ");
+//        Serial.print(timesUP);
+//        Serial.print(";\tKeyActive: ");
+//        if(KeyActive)Serial.println("TRUE");
+//        else Serial.println("FALSE");
+//      }
+      if(contactcntr >0 & !KeyClosed) contactcntr =0; //Contact DeBounce reset
+      contactcntr +=1;
+      if(contactcntr >15){ //Contact DeBounce check/pass
+        contactcntr =0; 
+        if(KeyClosed){
+          timesUP =0;
+          StopTX(); // Turn Tx Off; 
+          //Serial.println("KEYUP");
+          timesUP = 300+millis();
+        }
+      }
+      if(!KeyClosed & (millis()>timesUP) & (timesUP!=0) & KeyActive){//Added the 'KeyActive" to ensure this code does not operate while streaming CW keying via QUISK/FLDIGI 
+        timesUP =0;
+        PTT = false;
+        KeyActive = false;
+        digitalWrite(PTTPin, LOW);  //Return T/R Relay to RX position after delay
+        Serial.println("KEYUP");
+      }
+    }
+   }//End Manual Keying ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    
-   if(!PTT && !KeyClosed) KeyOpen = 1; // if not transmitting [ie; ptt not closed & No RF carrier], ingnore key input state.
-   if(KeyOpen && !timesUP)  TstStopTX(); // Turn Tx Off; timesUP=0 indicates no active streaming keying command; this is needed here to support external manual keying; same test/function is launched in "getNxtKeyStroke" routine
-   if(!PTT && !KeyClosed) digitalWrite(PTTPin, LOW);  //Set T/R Relay to Receive position
-   if(!KeyOpen && !timesUP &&!KeyStream[0]) TstStartTX();//timesUP=0 indicates no active streaming keying command; So this is needed here to support external manual keying; same test/function is launched in "getNxtKeyStroke" routine
-//  }//End while loop
+   if(!KeyActive ){ // Manage Streaming keying here
+       if(timesUP){
+        if(millis()>timesUP)// we have been working with active usb cw keying data; its now time go check to see what to do next (cw keying wise)
+        { 
+         getNxtKeyStroke(true);
+        }
+       }
+       else getNxtKeyStroke(false); //Keystroke buffer has been empty; But Need to check and see if that's still the case
+       
+       if(!PTT && !KeyClosed) KeyOpen = 1; // if not transmitting [ie; ptt not closed & No RF carrier], ingnore key input state.
+       if(KeyOpen && !timesUP){
+        //Serial.println("KEYUP");
+        StopTX(); // Turn Tx Off; timesUP=0 indicates no active streaming keying command; this is needed here to support external manual keying; same test/function is launched in "getNxtKeyStroke" routine
+       }
+       if(!PTT && !KeyClosed) digitalWrite(PTTPin, LOW);  //Set T/R Relay to Receive position
+   }
 } //End main Loop
 /////////////////////////////////////////////////////////////////////////////
 bool MyserialEvent() {
   bool stringComplete = false;
-  while (Serial.available()) {
+  
+  while (Serial.available() ) {
     // get the new byte:
     char inChar = (char)Serial.read();
     // if the incoming character is a 'Carrage Return', set a flag
@@ -229,22 +307,54 @@ void sendFrequency(float HzFreq) {
    Serial.print( KhzFreq);
    Serial.println("Khz");
    //Set appropriate TX low pass filter via 2 bit input to 74145 BCD to Decimal converter
+   //Band0
    if (KhzFreq < 6000){ //80 meters; lowest freg low pass filter
     digitalWrite(A0, LOW);
-    digitalWrite(A1, LOW);  
+    digitalWrite(A1, LOW);
+    digitalWrite(A2, LOW);  
    }
-   if (KhzFreq > 12000){ //20 meters; highest freg low pass filter
+   //Band1
+    if (KhzFreq < 8000 && KhzFreq >= 6000){ //40 meters
+    digitalWrite(A0, HIGH);
+    digitalWrite(A1, LOW);
+    digitalWrite(A2, LOW);  
+   }
+   //Band3
+   if (KhzFreq < 12000 && KhzFreq >= 8000){ //30 meters
+    digitalWrite(A0, HIGH);
+    digitalWrite(A1, HIGH);
+    digitalWrite(A2, LOW);  
+   }
+   //Band2
+   if (KhzFreq >= 12000 && KhzFreq <16000){ //20 meters
     digitalWrite(A0, LOW);
-    digitalWrite(A1, HIGH);  
+    digitalWrite(A1, HIGH);
+    digitalWrite(A2, LOW);  
    }
-   if (KhzFreq < 8000 && KhzFreq > 6000){ //40 meters
+   //Band4
+   if (KhzFreq >= 16000 && KhzFreq <19500){ //17 meters
+    digitalWrite(A0, LOW);
+    digitalWrite(A1, LOW);
+    digitalWrite(A2, HIGH);  
+   }
+   //Band5
+   if (KhzFreq >= 19500 && KhzFreq <22500){ //15 meters
     digitalWrite(A0, HIGH);
-    digitalWrite(A1, LOW);  
+    digitalWrite(A1, LOW);
+    digitalWrite(A2, HIGH);  
    }
-   if (KhzFreq < 12000 && KhzFreq > 8000){ //30 meters
+   //Band6
+   if (KhzFreq >= 22500 && KhzFreq <26000){ //12 meters
+    digitalWrite(A0, LOW);
+    digitalWrite(A1, HIGH);
+    digitalWrite(A2, HIGH);  
+   }
+   //Band7
+   if (KhzFreq >= 26000){ //10 meters; highest freg low pass filter
     digitalWrite(A0, HIGH);
-    digitalWrite(A1, HIGH);  
-   }
+    digitalWrite(A1, HIGH);
+    digitalWrite(A2, HIGH);  
+   }       
   } 
   while ((PllFrq<900)&&(PllFrq < PllLoLim || FreqMult & 1 ==1 || ClkMult & 1 ==1) ){
      FreqMult++;
@@ -297,24 +407,24 @@ void sendFrequency(float HzFreq) {
 }// end sendFrequency() Function
 //////////////////////////////////////////////////////////
 
-void TstStartTX(void){
+void StartTX(void){
   if(!KeyClosed){ // Turn Tx On
      si5351.output_enable(SI5351_CLK0, 0);
      si5351.output_enable(SI5351_CLK1, 0);
      SetTX = true;
-     sendFrequency(TXfreq);
+     if(TXfreq>= 3500000.0) sendFrequency(TXfreq);
      SetTX = false;
      KeyClosed = true;
    }
 }
 //////////////////////////////////////////////////////////
 
-void TstStopTX(void){
+void StopTX(void){
   if(KeyClosed){  // Turn Tx Off
       si5351.output_enable(SI5351_CLK2, 0);// disable xmit clock/oscillator.
       si5351.output_enable(SI5351_CLK0, 1);// Activate I phase RX clock/oscillator 
       si5351.output_enable(SI5351_CLK1, 1);// Activate Q phase RX clock/oscillator
-      if(!timesUP) KeyClosed = false;// if we are not actively processing streaming keying data, reset this flag 
+      if(!timesUP) KeyClosed = false;// if we are NOT actively processing streaming keying data, reset this flag 
    }
 }
 //////////////////////////////////////////////////////////
@@ -332,7 +442,7 @@ void getNxtKeyStroke(bool Active) // unpack Keystroke buffer/FIFO one character 
       }
       
       if(!PTT) digitalWrite(PTTPin, LOW);
-      TstStopTX();
+      StopTX();
       KeyClosed = false;
       
     }
@@ -346,7 +456,7 @@ void getNxtKeyStroke(bool Active) // unpack Keystroke buffer/FIFO one character 
       loopcnt =0;
       keycmd = keycmd-40;//convert keydown command to its WPM value
       //KeyClosed = true;
-      TstStartTX();
+      StartTX();
     }
     //Serial.print("; WPM: ");
     //Serial.println(keycmd);
@@ -370,7 +480,7 @@ void getNxtKeyStroke(bool Active) // unpack Keystroke buffer/FIFO one character 
 //    }
     timesUP = 0; // The CW Key command data buffer is empty; clr the timesUP variable
     if(PTT && Active){//if 'Active' isn't "true", then this clean-up should not be needed; added the 'Active' flag to prevent clring the PTT flag (which is normally set before keying data is sent)
-        TstStopTX();// we should not be transmitting, but double check
+        StopTX();// we should not be transmitting, but double check
         KeyClosed = false;
         digitalWrite(PTTPin, LOW);  //Set T/R Relay to receive position
         PTT = false;
@@ -472,5 +582,3 @@ uint64_t pll_calc(enum si5351_pll pll, uint64_t freq, struct Si5351RegSet *reg, 
     return freq;
   }
 }
-
-
