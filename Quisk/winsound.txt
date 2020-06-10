@@ -1,0 +1,17 @@
+August 2010
+Microsoft Sound Access
+
+Microsoft introduced "Windows Core Audio" and "Media Foundation" with
+Vista.  Core Audio is a low level API useful for pro audio apps.  Most
+sound apps would use either Direct Sound or Media Foundation; these use
+Core Audio for sound card access.
+
+Microsoft does not plan to make Core Audio available for Windows XP.
+Media Foundation requires Windows Vista or later.
+
+The ASIO driver by Steinberg provides low latency access to the
+sound card, but requires an ASIO driver on the PC.  See
+    http://www.steinberg.net/en/company/developer.html
+    http://static.helge.net/2010/06/ASIO%20SDK%202.pdf
+
+See http://msdn.microsoft.com/en-us/library/dd370784(VS.85).aspx

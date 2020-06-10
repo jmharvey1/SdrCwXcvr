@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="description" content="Documentation for Quisk">
+<meta name="author" content="James C. Ahlstrom">
+<meta name="keywords" content="quisk, sdr, software defined radio, ham radio">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Documentation for Quisk</title>
+
+<style type="text/css">
+* {
+    margin: 0px;
+}
+body {
+    padding: 0px;
+}
+ul.menu {
+    padding: 20px;
+}
+div.menu {
+    position: fixed;
+    float left;
+    background: #F9F9C9;
+    overflow: scroll;
+    width: 15%;
+    height: 100%;
+    padding: 5px;
+    font-family: sans-serif;
+    font-size: 16px;
+}
+div.contents {
+    position: relative;
+    float: right;
+    overflow: scroll;
+    width: 80%;
+    height: 100%;
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="menu">
+<ul class="menu">
+<li><a href="#Welcome">Welcome</a></li>
+<li><a href="#Credits">Credits</a></li>
+<li><a href="#Installation">Installation</a></li>
+<li><a href="#Configuration">Configuration</a></li>
+<li><a href="#SoundCards">Sound Cards</a></li>
+<li><a href="#SDRIQ">SDR-IQ</a></li>
+<li><a href="#Timing">Timing</a></li>
+<li><a href="#USBControl">USB Control</a></li>
+<li><a href="#CustomHardware">Custom Hardware</a></li>
+<li><a href="#ExtensionPackages">Extensions</a></li>
+<li><a href="#Digital">Digital Modes</a></li>
+<li><a href="#VNA">VNA</a></li>
+</ul>
+</div>
+
+<div class="contents">
+<h1>
+<a id="Welcome"></a>
+Welcome to QUISK (February 2014)
+</h1>
+
+<p>
+This is Quisk, a Software Defined Radio (SDR). You supply an antenna,
+a complex (I/Q) mixer to convert radio spectrum to a low IF, and send
+that IF to the left and right inputs of the sound card in your
+computer.
+The Quisk software will read the sound card data, tune it, filter it,
+demodulate it, and send the audio to headphones or speakers.
+Quisk has a microphone input and a key input so it can operate as a
+complete transceiver. Quisk works with this hardware:
+</p>
+
+<ul>
+<li>SoftRock connected to the sound card</li>
+<li>Many other SDR's connected to the sound card</li>
+<li>SDR-IQ connected by USB</li>
+<li>N2ADR hardware connected by Ethernet and IP</li>
+<li>HiQSDR hardware connected by Ethernet and IP</li>
+<li>Quisk can be used as a pan adapter, and can control some radios</li>
+</ul>
+
+Quisk is small and simple, and has been designed so that it is easy to
+change Quisk to suit your own hardware. Quisk rhymes with
+"brisk", and is QSK plus a few letters to make it
+easier to pronounce. QSK is a Q signal meaning full breakin CW
+operation,
+and Quisk has been designed for low latency. Quisk includes an input
+keying signal that can mute the audio and substitute a sidetone.
+<br>
+
+<br>
+Please read the file <a href="CHANGELOG.txt">CHANGELOG.txt</a>
+for changes.
+<br>
+
+<br>
+When running Quisk for the first time, please press the "Help"
+button on the lower right.
+<br>
+
+<br>
+<h2 id="Credits">Credits </h2>
+Quisk was originally written by James Ahlstrom, N2ADR.
+<br>
+
+<br>
+Thanks to Leigh L. Klotz, Jr. WA5ZNU for configuration improvements,
+factoring
+out my eccentric hardware control, and adding panadapter and other
+hardware
+support.
+<br>
+
+<br>
+Thanks to Franco Spinelli for a fix for the H101 hardware.
+<br>
+
+<br>
+Thanks to Andrew Nilsson VK6JBL for adding support for SoftRock Rx and
+Tx.
+<br>
+
+<br>
+Thanks to Terry Fox, WB4JFI, for code to support the Charleston
+hardware.
+<br>
+
+<br>
+Thanks to Maitland Bottoms, AA4HS, for the sub-module linkage patches.
+<br>
+
+<br>
+Thanks to Philip G. Lee for adding native support for PulseAudio.
+<br>
+
+<br>
+Thanks to Eric Thornton, KM4DSJ, for adding async support for PulseAudio.
+<br>
+
+<br>
+Many others contributed to Quisk, and are mentioned in comments in the source code.
+<br>
+
+<h2 id="Installation">Installation</h2>
+<br>
+Quisk is registered on <a href="http://pypi.python.org">http://pypi.python.org</a>;
+just search for "quisk" to see the latest version and the download URL. The download page is <a href="http://james.ahlstrom.name/quisk/index.html">http://james.ahlstrom.name/quisk/index.html</a>.
+There will be a
+source
+distribution (a tar.gz file) and a binary Windows version (msi
+installer). The Linux version is for 32-bit Linux. If you
+get the message "wrong ELF class", you have 64-bit Linux, and you must
+recompile (use "make"). You
+do not need to compile the Windows binary, but you need Python to
+run it.
+<br>
+
+<br>
+You must have Python installed on your computer, preferably version
+2.7. Linux almost certainly has Python installed. For
+Windows, visit <a href="http://www.python.org">http://www.python.org</a>
+and download the Windows installer for Python 2.7 to install it.
+You must also install the latest wxPython package for your version of
+Python from <a href="http://www.wxpython.org">http://www.wxpython.org.</a>
+<h3 id="g0.2.1">Linux </h3>
+I recommend that you just uncompress and un-tar the tar.gz file
+somewhere
+under your home directory:
+<br>
+
+<br>
+gunzip quisk-3.4.4.tar.gz
+<br>
+tar xf quisk-3.4.4.tar
+<br>
+# Check directory quisk-3.4.4 before removing the tar file
+<br>
+rm quisk-3.4.4.tar
+<br>
+# Perhaps change to a shorter name unless you want multiple versions
+<br>
+mv quisk-3.4.4 quisk
+<br>
+
+<br>
+That way all the source for Quisk is available so you can change or add
+to
+Quisk. If you need to recompile the source, use the "make" command in the quisk
+directory.
+If there are compile errors or missing *.h files, you must install some
+"dev"
+packages. See below for needed "dev" packages.
+<br>
+
+<br>
+Run Quisk using a terminal with the command "python quisk.py". If there
+is
+any error output, it will appear on the terminal. After testing, you
+can
+create a panel launcher with the same command but a full path, for
+example
+"python /home/jim/quisk-3.4.4/quisk.py" or "python
+/home/jim/quisk/quisk.py"
+if you used the shorter name . Then just click the button to run Quisk.
+<br>
+
+<br>
+Another way to install Quisk is to change to the superuser (root)
+and run "easy_install quisk" or "python setup.py install". If you don't
+have easy_install, install
+the python-setuptools package (for Debian/Ubuntu). This method installs
+Quisk as a package. But you need to be root, and the source is not in a
+convenient place; it is in /usr/lib/python2.7/site-packages. And there
+is no uninstall feature.
+<br>
+
+<br>
+Quisk needs a few additional packages to run. All should be available
+as
+packages or RPM's so you don't have to compile the source. Generally
+you would get the most recent versions rather than the versions I show
+below. Needed packages are:
+<br>
+
+<br>
+<ul>
+
+<li>python2.7, the Python programming language. See <a href="http://www.python.org">http://www.python.org</a>.
+This
+almost certainly is already installed on your Linux. Use the version
+you have, or get the most recent version. </li>
+</ul>
+<ul>
+
+<li>python-wxgtk2.8, the wxPython package used for the GUI. Get the
+most
+recent version available for your Python version. </li>
+</ul>
+<ul>
+
+<li>fftw3, the Fastest Fourier Transform in the West. See fftw.org.
+This is
+a great FFT package and is also used by GNU radio. </li>
+</ul>
+<ul>
+
+<li>python2.7-dev, fftw3-dev, libasound2-dev, libpulse-dev, portaudio19-dev These
+are
+development packages that you need so you can change and recompile the
+Quisk C-language files. Get the version that corresponds to the
+software you have. If you get compiler errors, check for missing "-dev"
+packages. </li>
+</ul>
+<br>
+If you want to attach a key status line to your computer, you need to
+change is_key_down.c and run "make". I currently use Ethernet to
+send key up/down status. I previously sent a 5 volt CMOS signal
+to my
+parallel port, but new computers often lack a parallel port, and
+Ethernet is much easier.
+<br>
+
+<br>
+If you decide to use the parallel port, you need the ppdev Linux
+driver.
+To load it on boot, add it to /etc/modules (on Debian). The permissions
+on the port (on Debian) are 660, group "lp". So add yourself to the
+"lp"
+group. Otherwise you will have to run "modprobe ppdev", and run
+"chmod 666 /dev/parport0" as root to access the parallel port.
+<br>
+
+<br>
+Quisk does not use the serial port, but some of the special hardware
+files
+do. If you need Python serial port support, install pyserial from
+package python-serial. Note that many programs use USB, but are based
+on a USB to serial converter, and pyserial works with these too.
+<br>
+
+<br>
+<h3 id="g0.2.2">Windows Installer </h3>
+To install Quisk, first install Python and wxPython (see
+above). Next download the quisk.msi installer, right click it,
+and
+select "install". This is best for those who plan to run Quisk,
+but not work with the source code. To uninstall Quisk, use the
+Control Panel item
+Add/Remove Programs. Quisk is installed in the site-packages
+folder under the Python 2.7 libraries. This enables Quisk to
+be imported as a package by other software.
+<br>
+<h3 id="g0.2.3">Windows Source </h3>
+If you want to see and change the source code, or recompile the
+Windows version from source, download the source tarball (the tar.gz
+file), uncompress it and extract it into a directory somewhere.
+This is the same as the Linux install proceedure. I use the
+directory C:/pub/quisk because I synchronize this directory using
+SpiderOak on multiple computers. You should probably choose a
+directory under C:/Users/my_name with Windows 7, or perhaps a
+directory under the Documents folder. You can then run Quisk with
+the command "C:\python27\pythonw.exe quisk.py" from the Quisk
+directory, the directory where quisk.py is located. You can
+create a shortcut on the desktop with this command. There is no
+need to recompile unless you change the C language source, as the
+needed DLLs are included. You can change any of the Python *.py
+files, and there is no need to recompile.
+<br>
+
+<br>
+To recompile the DLL, install the MinGw compiler and the same
+dependencies as the Linux version, and enter "make win". If you
+get errors, look for missing *.h files from missing dependencies.
+<h3 id="g0.2.4">Quisk Files</h3>
+<br>
+These are the Quisk files in the distribution:
+<br>
+
+<br>
+<ul>
+
+<li>quisk.py is the main program and is written in the Python
+language.
+Python is a powerful but easy to learn language, and I hope you have
+fun changing Quisk to make it do what you want. Python is also useful
+for general electronics calculations such as complex arithmetic. See
+www.python.org. Quisk.py uses the wxPython Python package to make the
+screen interface. </li>
+</ul>
+<ul>
+
+<li>help.html is the help file for quisk. Press the "Help" button. </li>
+</ul>
+<ul>
+
+<li>_quisk.so is the _quisk extension module for Linux, and _quisk.pyd is the extension module DLL used by Windows.
+<br>
+ </li>
+</ul>
+<ul>
+
+<li>sdriq.so is the extension module needed for the SDR-IQ. It needs
+_quisk.so to be available when it starts. </li>
+</ul>
+<ul>
+
+<li>makefile is the makefile, and you must run "make" to create a new
+_quisk.so unless you use a Python installer that creates _quisk.so
+itself. </li>
+</ul>
+<ul>
+
+<li>setup.py is used by makefile and the Python installers. </li>
+</ul>
+<ul>
+
+<li>quisk_conf_defaults.py is the basic configuration file imported
+into
+all other configuration files. Read it (but don't change it) to see
+what you can change in your own quisk_conf.py. </li>
+</ul>
+<ul>
+
+<li>quisk_conf_*.py are various Quisk configuration files. Copy one
+of them
+to your own .quisk_conf.py and edit that file. I may publish new model
+files in the future, and you don't want your changes to be overwritten.
+  </li>
+</ul>
+<ul>
+
+<li>quisk_hardware_*.py are various quisk hardware control programs.
+If you
+have custom hardware, import one of these files into your
+quisk_conf.py. Or copy one of them to your own quisk_hardware.py, edit
+that file, and import it in .quisk_conf.py. </li>
+</ul>
+<ul>
+
+<li>quisk.c, quisk.h are the files for the _quisk extension module
+used by
+quisk.py. The other C-language files are linked with these to make
+_quisk.so and _quisk.pyd.
+<br>
+ </li>
+</ul>
+<ul>
+
+<li>sound.c is the general purpose sound code for all sources.</li>
+</ul>
+<ul>
+
+<li>sound_portaudio.c is the sound card access code for PortAudio. </li>
+</ul>
+<ul>
+
+<li>sound_pulseaudio.c is the sound card access code for PulseAudio. </li>
+</ul>
+<ul>
+
+<li>sound_alsa.c is the sound card access code for the ALSA drivers.
+<br>
+</li>
+</ul>
+<ul>
+
+<li>sound_directx.c is the sound card access code for DirectX. </li>
+</ul>
+<ul>
+
+<li>is_key_down.c is the hardware key checker for the PC. I use
+Ethernet to
+send the key status, but there is code for the parallel port and dummy
+code too. </li>
+</ul>
+<ul>
+
+<li>sdriq.c, sdriq.h are the files that make sdriq.so and support the
+SDR-IQ. </li>
+</ul>
+<ul>
+
+<li>microphone.c reads the microphone audio and sends it to your
+hardware
+using Ethernet. Change it for other sound access.</li>
+</ul>
+<ul>
+</ul>
+<ul>
+
+<li>docs.html is Quisk documentation. Look for other *.html and *.txt too.</li>
+</ul>
+<ul>
+
+<li>portaudio.py is a utility program. Run it to list your PortAudio
+devices. It is not used by the Quisk program. </li>
+</ul>
+<h2 id="Configuration">Configuration</h2>
+Quisk does not have a menu to control its operating parameters.
+Instead, you must create and edit your own configuration file.
+For Linux, the default configuration file name is ".quisk_conf.py" in
+your home
+directory; that is, "~/.quisk_conf.py". For Windows, the default
+configuration file name is quisk_conf.py in your My Documents folder.
+<br>
+<ul>
+
+<li>Linux config
+file:
+~/.quisk_conf.py</li>
+
+<li>Windows config file: My Documents/quisk_conf.py
+<br>
+  </li>
+</ul>
+To help you get started,
+there
+are several configuration files included, such as
+quisk_conf_model.py
+for
+sound card, quisk_conf_sdriq.py for SDR-IQ, and quisk_conf_fixed.py for
+fixed
+VFO such as SoftRock. Do not change any of the quisk_conf_*.py
+files. Instead copy one of
+these
+files (but NOT quisk_conf_defaults.py) to your own config file.
+Newer versions of Quisk will not overwrite your personal config file.
+<br>
+
+<br>
+The file quisk_conf_defaults.py contains all Quisk's parameters.
+It is read in first; then your config file is read in and overwrites
+some parameters. Do not copy quisk_conf_defaults.py to your
+config file. It is too long and is subject
+to change with each new version. Instead,
+read it
+to see what you can change, and then just put the lines that need
+changing into
+your config file.
+<br>
+
+<br>
+If you are controlling custom hardware, you will need to specify a
+hardware
+file in quisk_conf.py. The default is quisk_hardware_model.py. Look at
+the
+other quisk_hardware_*.py files. For example, quisk_hardware_fixed.py
+is for
+crystal controlled SoftRock. To use that hardware file, change your
+quisk_conf.py to include:
+<br>
+
+<br>
+<div style="margin-left: 40px;">import quisk_hardware_fixed as
+quisk_hardware
+<br>
+</div>
+<br>
+There are comments in quisk_conf_model.py showing this change.
+If none of the hardware files do exactly what you want, copy one of
+them to
+your own quisk_hardware.py, edit that file, and include this line in
+quisk_conf.py:
+<br>
+
+<br>
+<div style="margin-left: 40px;">import quisk_hardware
+<br>
+</div>
+<br>
+Newer versions of Quisk will not overwrite your
+quisk_hardware.py. Your hardware file enables you to customize
+Quisk without changing the Quisk program files.
+<br>
+
+<br>
+Alternatively, you can define a class named "Hardware" in your config
+file,
+and that class will be used instead of a hardware file. This is
+recommended
+only for simple hardware needs. The class should start like this:
+<br>
+<br>
+
+<pre>
+from quisk_hardware_model import Hardware as BaseHardware
+class Hardware(BaseHardware):
+    def __init__(self, app, conf):
+        BaseHardware.__init__(self, app, conf)
+        # Start your hardware control here.
+        # For ideas, see one of the other hardware modules.
+</pre>
+
+<br>
+Both the config file and your hardware file are written in the Python
+language. Python is an easy to learn but powerful computer
+language. Quisk can be adapted to different hardware because of
+the power of Python.
+<br>
+<h2 id="SoundCards">Sound Cards </h2>
+If you use a sound card for input, the quality of your sound card is
+critical;
+but you can start with the sound card you have. Check the Graph screen
+with no input to see the noise floor. It should be as flat and as low
+as
+possible,
+with no bump near zero Hertz. The 0dB line at the top of the Graph
+screen
+is the
+maximum level, so if your noise floor is at -90 dB, you have that much
+dynamic range. The IF (sound) input to the sound card should raise the
+noise
+floor only slightly to avoid losing dynamic range.
+<br>
+
+<br>
+The sample rate determines how much of the band you can see on the
+screen. My 96 kHz card shows a little over 80 kHz of bandwidth, from
+-40 kHz to + 40 kHz centered at the VFO frequency. Generally you
+would choose the
+highest
+rate available to get the most visible bandwidth. Be aware that a card
+claiming to work at (say) 192 kHz may in fact play at that rate, but
+only capture (record) audio at a lower rate. It is the capture rate
+that matters.
+Enter only the sample rate you know your raw hardware supports for
+capture.
+<br>
+
+<br>
+If you use the SDR-IQ or other hardware for input, you still need a
+sound card for sound output. The quality of this card is not so
+important, so try the one you have. Be aware that most sound
+cards require the capture and playback rate to be the same when used
+for both. Here are some sample configurations:
+<br>
+<ul>
+
+<li>SoftRock Rx/Tx: Receive to card 1, Transmit to card 1 at the same
+rate, radio sound to card 2 at 48 kHz, microphone input from card 2 or
+3 at 48 kHz.</li>
+
+<li>SoftRock Rx: Receive to card 1, radio sound to card1 at the same
+rate; OR radio sound to card 2 at 48 kHz.</li>
+
+<li>Other: Receive from SDR-IQ or other hardware, radio sound to card
+1 at 48 kHz. Add a microphone to card1 at 48 kHz, or to card2 at
+48 kHz.</li>
+
+<li>Panadapter: There is no radio sound. Enter a null name ""
+for the play device.
+<br>
+  </li>
+</ul>
+If you buy a new sound card, make sure you know the
+capture (recording) sample rates and the noise level. Sound cards
+are usually specified over
+the audio range up to 24 kHz or so. But we need low noise and
+distortion
+over the whole range.
+<br>
+<h3 id="g0.4.1">Linux Names</h3>
+Quisk can use PulseAudio, PortAudio or ALSA to access your sound card.
+Names can be a fragment of text from the device description. It is
+better to use this text search rather than an index number, because the
+index number can change if you plug and unplug USB sound cards.
+<br>
+
+<br>
+The ALSA drivers use different names for the same sound card
+to provide different access. The names "hw:0" and "hw:1" refer
+to the raw hardware devices of the first and second sound card.
+You should use the raw hardware if possible. If the raw devices don't
+work,
+use the "plughw" name. The ALSA name can also be a string
+name. Here are some ALSA names:
+<br>
+<pre>"hw:0"		# First sound card
+"hw:1"		# Second sound card, etc.
+"plughw"	# plug device
+"default"	# alsa default device
+"alsa:NVidia"	# Search for the name in the alsa device description
+</pre>
+Alsa names starting with "alsa:" are an extension to the normal alsa
+names. They search for the text after the colon in the alsa
+device
+name. The alsa device names are shown on the config screen.
+Or you
+can start a terminal window and enter "aplay -l" for a list of play
+devices, or "arecord -l" for a list of capture devices. See <a href="http://james.ahlstrom.name/alsa_names.html">alsa_names</a> for
+more information.
+<br>
+
+<br>
+The
+PortAudio
+interface is newer, may be easier to get working, and may be used to
+connect Quisk to other programs (I have not tried this). But for
+CW, ALSA
+has
+lower latency. Run "python portaudio.py" in a terminal window to
+see a list of available names, or use
+a different PortAudio tool. Here are some PortAudio names:
+<br>
+<pre>"portaudio:(hw:0,0)"    First sound card.
+"portaudio:(hw:1,0)"    Second sound card, etc.
+"portaudio:NVidia"      Search for the name in the portaudio device description.
+"portaudio#1"           Directly specified index.
+"portaudiodefault"      May give poor performance on capture.
+</pre>
+<h3 id="g0.4.2">Linux Sound Servers </h3>
+Newer Linux systems are now shipping with PulseAudio enabled.
+PulseAudio is a sound server, a program that takes control of your
+sound cards, and controls usage by applications. The idea is that
+your applications talk to PulseAudio, and PulseAudio talks to the sound
+cards. Another example of a sound server is JACK.
+You can control the
+sound routing with the pavucontrol program. Remarkably, this is
+not included with PulseAudio, and you will need to install the
+pavucontrol package first. 
+<br>
+
+<br>
+Thanks to Philip G. Lee, Quisk now has native support for PulseAudio. 
+For PulseAudio devices, use the name "pulse:name" and connect the streams
+to your hardware devices using a PulseAudio control program.  The name "pulse"
+alone refers to the "default" device.  The PulseAudio names are quite long;
+for example "alsa_output.pci-0000_00_1b.0.analog-stereo".  Look on the screen
+Config/Sound to see the device names.  There is a description, a PulseAudio name,
+and for ALSA devices, the ALSA name.
+Instead of the long PulseAudio name, you can enter a substring of any of these three strings.
+An example is:
+
+<pre>
+# As seen on the Config/Sound screen:
+  CM106 Like Sound Device Analog Stereo
+     alsa_output.usb-0d8c_USB_Sound_Device-00-Device.analog-stereo
+     USB Sound Device USB Audio (hw:1,0)
+
+# In your config file:
+# Use the default pulse device for radio sound:
+name_of_sound_play = "pulse"
+# Use a PulseAudio name for radio sound:
+name_of_sound_play = "pulse:alsa_output.usb-0d8c_USB_Sound_Device-00-Device.analog-stereo"
+# Abbreviate the PulseAudio name:
+name_of_sound_play = "pulse:alsa_output.usb"
+# Another abbreviation:
+name_of_sound_play = "pulse:CM106"
+</pre>
+
+The PulseAudio code should not cause problems, but I am not sure what happens if PulseAudio is not
+installed, or if you replace it with JACK.  This config file option will turn off all but directly
+entered "pulse:" names:
+<pre>
+show_pulse_audio_devices = False
+</pre>
+
+
+<br>
+
+<br>
+<h3 id="g0.4.3">Linux Problems </h3>
+
+If Quisk appears to run but you get no sound input or output, you
+may be having trouble
+with your settings. Start Quisk and look at the graph. You should get a
+moving
+line display. Look at the Config screen. Interrupts should be
+increasing and latencies
+should fluctuate. If all this looks normal, but you get no sound
+output, or you get only
+white noise output, then you may need to change your settings with a
+mixer program.
+<br>
+
+<br>
+If you capture data with the sound card (no SDR-IQ) then you need
+to set the "capture
+device" to the line-in jack, and set the volume of the line-in to 100%.
+To play sound,
+you need to increase the volume of the playback device. Since a typical
+sound card has
+ten or twenty controls for all its analog and digital inputs and
+outputs, it is a guessing
+game to figure out which control to adjust.
+<br>
+
+<br>
+Basically you start the alsamixer program (use "man alsamixer" first)
+and adjust the volume
+controls and capture device until Quisk works. It is wise to reduce or
+mute unwanted inputs
+to avoid adding extra noise.
+Quisk does not do this for you. But once you have the controls set,
+they will stay the same
+and Quisk should keep working until you run another audio program that
+changes them.
+<br>
+
+<br>
+To make Quisk adjust the mixer controls when it starts, you need to
+know the control id number.
+Run the command "amixer -c 0 contents" (for card zero) and look at the
+control ids, names
+and values of all your controls. Figure out the control you need to
+adjust. For a setable
+option (on/off) the control value is one or zero. For a volume it is a
+number from 0.0 to
+1.0. Make a list of (device_name, numid, value) and add it to
+mixer_settings in your
+.quisk_conf.py file (see quisk_conf_defaults.py). I don't need to do
+this on my computer
+except for the microphone input on my second sound card.
+<br>
+
+<br>
+If you really get stuck, try one of these commands (see the "man"
+page):
+<br>
+<ul>
+
+<li>alsamixer  An ALSA mixer program with a curses interface. </li>
+</ul>
+<ul>
+
+<li>amixer  A character ALSA mixer. </li>
+</ul>
+<ul>
+
+<li>aplay  Play sound. </li>
+</ul>
+<ul>
+
+<li>arecord  Capture sound. </li>
+</ul>
+<ul>
+
+<li>speaker-test  Play sound to test your speakers. </li>
+</ul>
+And try to play an audio CD or run some other Linux audio program just
+to see that you
+have a working sound system.
+If you can't get ALSA to work, you could try the PortAudio or PulseAudio interface by
+just
+changing the sound card names.
+<br>
+
+<br>
+For more information try these articles:<span style="text-decoration: underline;">
+<br>
+</span><a href="http://linuxplanet.com/linuxplanet/tutorials/6465/1/">http://linuxplanet.com/linuxplanet/tutorials/6465/1/</a>
+<br>
+<a href="http://linuxplanet.com/linuxplanet/tutorials/6466/1/">http://linuxplanet.com/linuxplanet/tutorials/6466/1/</a>
+<br>
+
+<br>
+<h3 id="g0.4.4">Windows Names</h3>
+To see what sound cards you have, use the Control Panel item Sound
+Devices. There is a separate list for capture (recording) and
+playback devices, and a specified default device for each. The
+name of the default device is "Primary". To specify your sound
+card name, use either "Primary" or a substring of the device
+name. The search is case sensitive.
+<br>
+
+<br>
+<h2 id="SDRIQ">SDR-IQ as Input </h2>
+<br>
+Quisk can use an SDR-IQ from RfSpace instead of a sound card for input.
+Edit your config file to select the SDR-IQ. Read quisk_conf_defaults.py
+to see
+what changes you need to make. For Linux, try the USB driver that came with your system first.
+If you need a faster driver, install the ft245 Linux USB
+driver. See
+<a href="http://james.ahlstrom.name/ft245.html">http://james.ahlstrom.name/ft245</a>
+for installation instructions. You
+still
+need a sound card for output. The output is 48 kHz stereo and a high
+quality
+card is not required. Files that support the SDR-IQ are now in
+subdirectory
+sdriqpkg.
+<br>
+
+<br>
+<h2 id="Timing">Timing </h2>
+<br>
+There are several configuration parameters devoted to tuning; read the
+file quisk_conf_defaults.py for documentation. For most users, Quisk
+should run fine with the default settings. But if you use Quisk as part
+of a QSK CW transmitter, you should reduce latency_millisecs to as low
+a
+value as possible. This will reduce latency, but increase the
+likelihood of clicks and pops due to sound buffer underruns.
+<br>
+
+<br>
+<h2 id="USBControl">USB Control </h2>
+Many radio devices are now controlled through a USB interface. In
+many cases, the interface is actually a serial port, and an external or
+internal USB to serial converter is used. In other cases, the USB
+is native, but requires a custom device driver. In still other
+cases, the USB device announces itself as a standard device such as a
+sound device or human interface device, and uses a standard operating
+system built-in driver.
+<br>
+
+<br>
+<h3 id="g0.7.1">Linux</h3>
+Default USB permissions do not allow a non-root user to write to the
+bus. You may find that Quisk will complain about lack of
+permission to access the USB. You could test this by running
+Quisk as root and seeing if that works; but this is not acceptable
+except for testing. To change USB permissions, add a rule to
+/etc/udev/rules.d/local.rules (for SoftRock on Debian and Ubuntu) like
+this:
+<br>
+
+<br>
+ SUBSYSTEM=="usb", ATTR{idVendor}=="16c0" ,
+ATTR{idProduct}=="05dc", MODE="0666", GROUP="dialout"
+<br>
+
+<br>
+This changes the USB device permissions to read/write for all users,
+and changes the group to the "dialout" group. Default group
+permissions are read/write, so if you are in the "dialout" group, you
+don't need "MODE"; modify as appropriate. To load the new rule, you can either reboot or on Ubuntu use
+<br>
+
+<br>
+ sudo udevadm control --reload-rules
+<br>
+
+<br>
+<h2 id="CustomHardware">Custom Hardware</h2>
+<p>Quisk receives RF using your sound card or your SDR-IQ out of the
+box. But if you have
+custom hardware such as a VFO or
+a transmitter, you need to describe your hardware to Quisk.</p>
+First, Quisk has a transmit (Tx) frequency and a receive (Rx)
+frequency. The transmit frequency is the one shown in the
+frequency display, and shown by the tuning line on the graph and the
+waterfall. The Rx frequency is always equal to the Tx frequency
+except when the RIT (receiver incremental tuning) button is down or the
+Split feature is in use.
+The primary frequency in Quisk is the Tx frequency, even when you are
+receiving.
+<br>
+
+<br>
+Quisk has a "VFO" frequency. This is the RF frequency
+corresponding to zero Hertz audio frequency, and is the frequency shown
+at the center of the
+graph display. For a SoftRock or a direct conversion receiver
+(Tayloe detector, SDR1000-type hardware, etc.) this really is the VFO
+frequency. But consider an AOR AR8600 receiver with a 10.7 MHz IF
+output
+to a pan adapter. For that case, the VFO is always 10.7 MHz since
+that is the center point of the display, and signals at exactly 10.7
+MHz are at zero Hertz audio. But to display the correct frequency
+within Quisk, the VFO would be the tuning frequency of the AR8600.
+<br>
+
+<br>
+When Quisk starts, it uses the hardware description in
+quisk_hardware_model.py, but this file doesn't do much. It is
+mostly useful as a model or starting point. To use a different
+hardware
+file, first create a custom file such as my_hardware.py. Look at
+the various quisk_hardware_*.py for ideas. Then import your file
+in your config file:
+<br>
+
+<br>
+<pre> import my_hardware as quisk_hardware.</pre>
+<br>
+Suppose you have a crystal controlled SoftRock. A good model
+hardware file is quisk_hardware_fixed.py. Copy
+quisk_hardware_fixed.py to my_hardware.py, make any changes to
+my_hardware.py, and import it in your config file.
+<br>
+
+<br>
+At my shack, I control an AT-200PC antenna tuner, my SDR-IQ, my filter
+boxes and my SSB transceiver (using Ethernet) all with Quisk. Take a
+look at my n2adr subdirectory.
+<br>
+
+<br>
+The quisk_hardware_model.py file shows the basics of hardware control.
+There is an open() and close() function called once on startup and
+shutdown. The ChangeMode() and ChangeBand() functions are called when
+the user changes the mode or band with the corresponding buttons.
+The HeartBeat() function is called at about 10 Hz by Quisk. You
+can put code there to poll a serial port or to perform other
+housekeeping functions (try to be efficient). The two remaining
+functions deserve more documentation.
+<br>
+<h3 id="g0.8.1">ChangeFrequency(self, tune, vfo, source='', band='', event=None)</h3>
+Quisk calls the ChangeFrequency() function when the user changes the Tx
+frequency with a mouse click on the graph or waterfall, with the entry
+box, with the band Up/Down buttons, etc. The "source" is a string
+giving the reason for the change:
+<br>
+
+<br>
+<table style="text-align: left; width: 896px; height: 190px;" border="1" cellpadding="2" cellspacing="2">
+
+<tbody>
+
+<tr>
+  
+<td style="vertical-align: top;">BtnBand</td>
+  
+<td style="vertical-align: top;"> A band button was pressed (the
+string band is in the band argument)</td>
+    </tr>
+
+<tr>
+  
+<td style="vertical-align: top;">BtnUpDown</td>
+  
+<td style="vertical-align: top;">The band Up/Down buttons were
+pressed</td>
+    </tr>
+
+<tr>
+  
+<td style="vertical-align: top;">FreqEntry</td>
+  
+<td style="vertical-align: top;">The user entered a frequency in
+the
+box</td>
+    </tr>
+
+<tr>
+  
+<td style="vertical-align: top;">MouseBtn1</td>
+  
+<td style="vertical-align: top;">Left mouse button was pressed
+(for the mouse, "event" is the handler event)
+<br>
+      </td>
+    </tr>
+
+<tr>
+  
+<td style="vertical-align: top;">MouseBtn3</td>
+  
+<td style="vertical-align: top;">Right mouse button was pressed</td>
+    </tr>
+
+<tr>
+  
+<td style="vertical-align: top;">MouseMotion</td>
+  
+<td style="vertical-align: top;">The user is dragging with the
+left button</td>
+    </tr>
+
+<tr>
+  
+<td style="vertical-align: top;">MouseWheel</td>
+  
+<td style="vertical-align: top;">The mouse wheel up/down was used</td>
+    </tr>
+  </tbody>
+</table>
+<br>
+Most of the time you will not care about the "source". You just
+need to react to the user's action, perhaps by changing the hardware
+VFO frequency. It is not necessary to actually make the change
+requested. Just
+adjust your hardware as required, and return the actual (tune, vfo)
+that you want. Quisk will ignore its requested values and use
+your actual values instead.
+<br>
+
+<br>
+For example, suppose you have a crystal controlled SoftRock. The
+VFO frequency is fixed at (say) 7.025 MHz. Then when
+ChangeFrequency() is called, return (tune, 7025000). This will
+fix your VFO frequency to the only one available.
+<br>
+
+<br>
+Suppose Quisk calls ChangeFrequency() with vfo=7050000 and
+tune=7100000, so the tune is 50 kHz above the VFO. Suppose that
+is unacceptable because of (say) bandwidth limitations, so you want the
+VFO closer to the tune. Set your hardware VFO to 7090000 instead,
+and return (tune, 7090000).
+<br>
+
+<br>
+Suppose Quisk is just controlling a receiver and the audio is
+demodulated by the receiver and not by Quisk. Then the center
+frequency is always the tuning frequency, and you would set the
+receiver frequency to tune, and return (tune,
+tune).
+<br>
+
+<br>
+<h3 id="g0.8.2">ReturnFrequency(self)</h3>
+When Quisk starts, it calls ReturnFrequency() to get the initial tune
+and VFO. To display an initial frequency, return (tune, vfo) on
+the first call.
+<br>
+
+<br>
+Thereafter, Quisk calls ReturnFrequency() at a 10 Hz rate to poll for
+frequency changes. You should almost always return (None, None)
+to indicate that the frequencies have not changed since the last time
+ReturnFrequency() or ChangeFrequency() was called. Returning
+(None, None) is slightly more efficient than returning the actual
+frequencies, and thus forcing Quisk to see if its frequencies are out
+of date.
+<br>
+
+<br>
+The only reason to return something other than (None, None) is if your
+hardware can change frequency by itself; that is, other than in
+response to ChangeFrequency(). For example, if your hardware is a
+receiver with a tuning knob, and the user turns the knob, you must
+return the new frequencies from ReturnFrequency() or else Quisk will be
+unaware of the change.
+<br>
+
+<br>
+<h2 id="ExtensionPackages">Extension Packages </h2>
+Quisk comes with two extension packages. The sdriqpkg package
+supports the SDR-IQ hardware by RfSpace. The n2adr package
+supports the hardware in my shack. There are other extension
+packages available from third parties.
+<br>
+
+<br>
+All extension packages are directories (folders) in the Quisk root;
+that is, in the directory where quisk.py is located. This enables
+Quisk to find extension modules, and extension modules to find each
+other. You can install in a different place, but you will need to
+know what you are doing.
+<br>
+
+<br>
+Starting with Quisk 3.6 C-language extension modules are not linked
+with _quisk.so. Certain symbols from _quisk.so are exported using
+the Python CObject or Capsule interface. That simplifies linkage
+and eliminates problems with module search paths. See the
+documentation in import_quisk_api.c. This change was suggested by
+Maitland Bottoms, AA4HS, and he also provided patches.
+<br>
+
+<br>
+Most Quisk users will not need to write packages to support their
+hardware. They will need a config file in
+their home directory (or other name with the "-c" or "--config" command
+line option). And they may need a custom hardware file that can
+be written directly in the config file (for simple cases) or imported
+from the file quisk_hardware.py. If you need to import Python
+files, they must be on your PYTHONPATH. You could just put them
+in the Quisk root (not really recommended). Or you could put them
+in a directory somewhere on PYTHONPATH (import sys; print
+sys.path). Or you could put them in a directory somewhere and add
+that directory to PYTHONPATH in your config file:
+<br>
+
+<br>
+ import sys
+<br>
+ sys.path.append('/home/jim/my_python_stuff')
+<br>
+
+<br>
+<h3 id="g0.9.1">Shared Libraries </h3>
+
+The main Python extension module for Quisk is _quisk.so or _quisk.pyd.
+It is a shared
+library. To import it, it must be on the Python path. There are other
+Python extension modules (shared libraries) for other hardware, for
+example,
+sdriq.so. Quisk works fine when all these modules are in package
+subdirectories. If you want to put them somewhere else, be sure that the Python import mechanism can find them.
+<br>
+
+<br>
+If you link your sub-packages against _quisk so you can use _quisk functions, be aware that your sub-package must be able
+to find
+_quisk.so at both compile and run time. You need to follow the Linux rules for searching
+for
+shared libraries. Try using the "ldd sdriq.so" command to see your
+library
+dependencies. Also try readelf -d sdriq.so.
+<br>
+
+<br>
+For Quisk version 3.6 and newer, you should use the Python CObject or
+Capsule mechanism instead of using the C linker to access _quisk
+functions and data. Quisk will prepare an array of function and
+data pointers and transfer them to your sub-module without using the C
+linker. Only minimal changes to your sub-module are
+required. The SDR-IQ module sdriq.so uses this method, and you
+can use it as a model. See the file import_quisk_api.c for
+documentation.
+<br>
+<h3 id="g0.9.2">New Packages </h3>
+If you have more complex needs or want to distribute your code more
+widely, you need to create a new Quisk package. That is easily
+done by modeling your code after the existing packages. To create
+a new package you need a subdirectory of the Quisk root to hold it,
+perhaps "mypak". Then create these files in mypak:
+<br>
+
+<br>
+<ul>
+
+<li>__init__.py This file just consists of
+the
+character "#". Its existence identifies mypak as a Python package.
+<br>
+  </li>
+</ul>
+<ul>
+
+<li>makefile Only needed if
+you
+have C-language extensions. Copy this file from sdriqpkg/makefile.
+<br>
+  </li>
+</ul>
+<ul>
+
+<li>MANIFEST.in A list of files you want to
+distribute in your package. This file often consists of just one
+line: include *.c *.h *.py *.txt
+*.html
+*.so makefile
+<br>
+  </li>
+</ul>
+<ul>
+
+<li>README.txt This file is expected to
+be
+present.</li>
+</ul>
+<ul>
+
+<li>setup.py This file
+describes
+your package. It contains the package name, author, C source
+files and compiler options, etc. See <a href="http://docs.python.org/distutils/setupscript.html">http://docs.python.org/distutils/setupscript.html</a>
+and use other packages as examples.
+<br>
+  </li>
+</ul>
+<br>
+To these files, you add all your Python files, C-language files and any
+other files you need. If you have a hardware or widget file, they
+should be named quisk_hardware.py and quisk_widgets.py. Longer
+names are not needed because you are within a package. You should
+include a sample quisk_conf.py too.
+<br>
+
+<br>
+To compile C-language extensions (if you have any) enter "make".
+To import your hardware and widgets files from other modules, use:
+<br>
+
+<br>
+ from mypak import quisk_hardware
+<br>
+ from mypak import quisk_widgets
+<br>
+ from mypak import myext as EXT
+<br>
+
+<br>
+The setup.py file describes how to build your package. But it is
+also used to distribute it. To create a mypak-1.0.tar.gz file in
+the "dist" subdirectory, use:
+<br>
+
+<br>
+ python setup.py sdist
+<br>
+
+<br>
+You can then put the file on your web page (for example). To make
+your package available on PyPi.Python.org, first register with PyPi and
+then use:
+<br>
+
+<br>
+ python setup.py register sdist upload
+<br>
+
+<br>
+Python supports quite complicated packages; see the distutils
+documentation.
+<br>
+
+<br>
+<h3 id="g0.9.3">Installing Packages </h3>
+Your package mypak will run on your machine as is. But when
+another user gets mypak-1.0.tar.gz they need to install it.
+Basically, they just put it in the Quisk root with the same name as on
+your machine. Here is an INSTALL.txt:
+<br>
+
+<br>
+Unzip and untar this archive at the root of the Quisk directory; that
+is, where the file quisk.py is located. In this example, the
+archive is named "mypak" and the path to quisk.py is
+/home/jim/quisk/quisk.py.
+<br>
+
+<br>
+ mv mypak-1.0.tar.gz /home/jim/quisk
+<br>
+ cd /home/jim/quisk
+<br>
+ gunzip mypak-1.0.tar.gz
+<br>
+ tar xf mypak-1.0.tar
+<br>
+ # Make sure that directory mypak-1.0 exists before removing the
+archive.
+<br>
+ rm mypak-1.0.tar  # tar file
+is no longer needed
+<br>
+ mv mypak-1.0 mypak # change to the correct name
+<br>
+
+<br>
+<h2 id="Digital">Digital Modes </h2>
+Quisk has a number of modes "DGT-" to receive and transmit digital
+signals. The modes "DGT-U" and "DGT-L" decode the signal as upper
+or lower sideband, and send the monophonic audio to the digital sound
+device. The mode "DGT-IQ" does not decode the audio; the I/Q
+samples are sent directly to the (stereo) digital sound device.
+The bandwidth of the digital sideband signals is set with the filter buttons as
+usual, and the maximum bandwidth is 20 kilohertz.
+<br>
+
+<br>
+Digital modes require an external program such as Fldigi to decode the
+received
+audio and to generate transmit audio. There are two aspects, rig
+control and audio transfer. Rig control is needed to synchronize
+the transmit frequency between Quisk and Fldigi (or other program) and
+to operate the PTT (push to talk). You can control Quisk using
+either XML-RPC or Hamlib. For Fldigi, start Quisk and select a
+digital mode.
+Then start Fldigi and set Fldigi rig control to "Use XMML-RPC".
+Now changing the frequency on one program will change the other.
+Keying Quisk to key down (however you do that with your hardware) will
+set Fldigi to Transmit. Pressing the PTT control in Fldigi will
+also press the PTT button in Quisk.
+<br>
+
+<br>
+Using Hamlib is similar. Set your digital program to Hamlib
+control, rig 2, device localhost:4575. This establishes a TCP
+connection to Quisk. If
+your program does not offer rig 2, please update your Hamlib files for
+that program. If your program can not set the TCP port to
+localhost:4575, then change the port Quisk uses by adding "hamlib_port
+= 4532" to your config file. This is the default port for rig 2.
+Hamlib control can be used by
+other programs such as logging programs. See <a href="http://james.ahlstrom.name/hamlib.html">http://james.ahlstrom.name/hamlib.html</a> for more information.
+<br>
+
+<br>
+Please read the file quisk_conf_defaults.py (as usual) to discover the various settings available for digital modes.
+<br>
+
+<br>
+Quisk has an additional audio input and output for digital
+programs. They are named digital_input_name and
+digital_output_name. You need to set these names to a sound
+device, and then set the Fldigi (or other program) sound card to the
+same device. The sound device is not a real sound card; it is
+some sort of loopback device, and is only needed because there is no
+standard way of sending sound samples between two programs (yet).
+The method to use for Quisk is the same as for other programs, and is
+on the web. It works for any digital program, not just Fldigi.
+<br>
+
+<br>
+If you use Windows, you need to purchase Virtual Audio Cable
+(VAC). Connect Quisk to one side, and your digital program to the
+other. I haven't tried this, so I don't know the device names to
+use.
+<br>
+
+<br>
+If you use Linux, you can use the ALSA loopback device, or use
+PortAudio, PulseAudio or Jack to route your audio. The ALSA loopback
+device is simple, and works the same as the Windows VAC. First
+create the loopback device with the command "modprobe snd-aloop" (you
+will need to be root). You can create the loopback device
+automatically, but the way to do that depends on your version of
+Linux. I just put the modprobe command in /etc/rc.local for my
+Ubuntu system. Now you can enter "cat /proc/asound/cards" to
+print out your sound cards, and you should see a "Loopback" card
+listed. The cards are also shown on the Quisk config
+screen. The Loopback card has one side that connects to Quisk and
+another side that connects to your digital program. For the Quisk
+side use:
+<br>
+
+<br>
+digital_input_name = "hw:Loopback,0"
+<br>
+digital_output_name = digital_input_name
+<br>
+<code>
+<br>
+</code>Note that the Loopback card is full duplex, and handles both
+input and output. For the digital program side, set the input and
+output to "Loopback,1". For Fldigi this is in the Audio / Devices
+/ PortAudio menu. Your audio is now connected and you
+should be able to receive digital signals. Be sure to test your
+transmit signal off the air. You may need to reduce power to
+improve linearity. I am open to adding support for other digital
+programs, especially if you provide information on how to do it.
+<br>
+
+<br>
+The sample rate for digital_input_name (transmit audio) is fixed at
+48000 sps. The sample rate for digital_output_name (received
+audio) is the same as the rate sent to your speakers. The
+Loopback device adopts the rate of the first program to use it.
+So starting Quisk first and your digital program next should
+work. Or you may need to set the appropriate rates. It is
+probably best to set all sample rates to 48000 sps because the digital
+signals are so narrow, and this make them easier to see.
+<br>
+<code></code>
+<h2 id="VNA">Vector Network Analyzer</h2>
+If you have my transceiver hardware from 2010 QEX, or the newer HiQSDR
+hardware, you can use it as a vector network analyzer by using a
+special program. You must be using FPGA firmware version 1.3 or
+newer. Run the VNA program with "python quisk_vna.py" or use a
+shortcut. The VNA program will not work with SoftRock or other
+hardware. The "Help" button explains how to use it, and should
+get you started. This VNA program enables you to analyze your
+antennas without additional expense.
+<br>
+
+<br>
+When running in VNA mode the two control bytes [18:20] are the 16-bit
+non-zero VNA count "vna_count", the number of data points to
+send. This locks the transmit and receive frequency to the
+same value. The phases are also equal except for a fixed time
+delay, which causes a linear change of phase with frequency. The
+starting frequency is the receive frequency (actually phase)
+rx_phase. Subsequent points have the transmit phase tx_phase
+added to create a frequency scan. Specifically, after each data
+point, the tx_phase is added to create the RF output at the next
+frequency; then there is a pause of 65 microseconds to allow the
+external device under test to stabilize; then 4096 data points are
+added together to create the sample; then the sample is added to the
+block of data to send by UDP. A sample of zero is sent after the
+last data point, and the process repeats. The receiving software
+must look for the zero sample that marks the start of a new scan.
+The total number of points in the scan is vna_count, and blocks
+received with a different length should be rejected.
+<br>
+
+<br>
+Since the transmit and receive frequency is the same, the data points
+are I/Q values at DC; that is, a complex number representing a voltage
+and phase.
+<br>
+
+<br>
+A calibration run must be taken before any data can be obtained.
+The calibrations request a scan of data points every 15 killohertz from
+zero to 60 megahertz, or a little over 4000 points. These data
+are saved so that the scan frequencies can be changed without a new
+calibration. For any start and end scan frequency the user
+chooses, these saved calibrations are used with linear interpolation.
+<br>
+
+<br>
+If vna_count is zero, the firmware is operating normally, and not in VNA mode.
+<br>
+</div>
+
+</body>
+
+
+</html>

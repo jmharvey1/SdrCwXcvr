@@ -1,0 +1,14 @@
+Windows USB Driver
+==================
+You don't need to install a USB driver unless your hardware is controlled
+by USB. If you have recent SoftRock hardware controlled by USB, you must install
+a USB driver.  Quisk uses the same driver as other SoftRock programs, namely
+the PE0FKO driver package.  This driver is based on libusb-win32, which in turn
+is based on libusb-0.1.
+
+  http://home.ict.nl/~fredkrom/pe0fko/SR-V9-Si570/#install
+
+A newer version of libusb called libusb-1.0 will soon be available, and the SoftRock
+community may start using the newer software and a newer driver.  Quisk will always
+follow any changes the SoftRock community makes, so just install whatever libusb
+driver is most current.  If it doesn't work with Quisk, I will fix Quisk.

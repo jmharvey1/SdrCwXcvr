@@ -1,0 +1,34 @@
+Metadata-Version: 1.1
+Name: quisk
+Version: 4.1.3
+Summary: QUISK, which rhymes with "brisk", is a Software Defined Radio (SDR).
+Home-page: http://james.ahlstrom.name/quisk/
+Author: James C. Ahlstrom
+Author-email: jahlstr@gmail.com
+License: UNKNOWN
+Download-URL: http://james.ahlstrom.name/quisk/
+Description: QUISK is a Software Defined Radio (SDR).  
+        You supply a complex (I/Q) mixer to convert radio spectrum to an
+        intermediate frequency (IF) and send that IF to the left and right
+        inputs of the sound card in your computer.  The QUISK software will
+        read the sound card data, tune it, filter it, demodulate it, and send
+        the audio to the same sound card for output to external headphones or
+        speakers.
+        
+        Quisk can also control and demodulate data from the SDR-IQ from RfSpace.
+        
+        Quisk works with the quisk_lppan_k3 package by Leigh, WA5ZNU, to
+        control the N8LP LP-PAN panadapter and the Elecraft K3.
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 6 - Mature
+Classifier: Environment :: X11 Applications
+Classifier: Environment :: Win32 (MS Windows)
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Natural Language :: English
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: C
+Classifier: Topic :: Communications :: Ham Radio

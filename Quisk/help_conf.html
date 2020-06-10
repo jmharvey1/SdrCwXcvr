@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="description" content="Help with Quisk Configuration">
+<meta name="author" content="James C. Ahlstrom">
+<meta name="keywords" content="quisk, sdr, software defined radio, ham radio">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head><body>
+
+<h3> Help with Quisk Configuration (October 2015) </h3>
+
+<h5> Quick Start </h5>
+<p>
+Quisk can now manage its settings (sound devices, sample rates, etc.) internally, and a configuration file is
+no longer required.  Multiple radios are supported as multiple named blocks of settings.  Take a look at the
+tabs after this tab.  The "Radios" tab shows the available radios.  Each radio has its own tab after the
+"Radios" tab.
+</p>
+<p>
+When you first start Quisk, it starts with the radio named "ConfigFileRadio".  This radio takes its settings
+only from your configuration file.  If you have no configuration file, Quisk uses defaults.  If you select
+the ConfigFileRadio tab, you can see your settings but not change them, because Quisk will not change your
+config file.  To change settings, you must name them; that is, create a name for the radio using that block of settings.
+</p>
+<p>
+Suppose you have a SoftRock, you created a configuration file for your SoftRock, and you start Quisk with that
+config file.  To use Quisk internal settings, just rename ConfigFileRadio to a new name of your choosing, such as
+"SoftRock", "My Radio", or anything else you want.  Then you can change the settings.  On the "Radios" tab, select
+the new radio as the startup radio so that Quisk starts up with those settings instead of ConfigFileRadio.
+</p>
+<p>
+Suppose you just purchased a HiQSDR, but have no config file for it.  When you start Quisk, ConfigFileRadio
+has no use, because it was not designed for a HiQSDR.  Instead, go to the radios tab and create a new
+radio of general type HiQSDR and give it a name.  The Radios tab can create, rename and delete radios.
+</p>
+<p>
+When you change settings for any radio, the changes do not apply until Quisk restarts.  To restart Quisk,
+press the Restart button on the Radios tab.  If PulseAudio is running, you must exit and restart Quisk yourself.
+</p>
+
+<h5> History </h5>
+<p>
+Quisk was written in 2008, and since that time it has used a configuration file to control its operation.  Setting
+sound devices or changing sample rates required editing the configuration file and restarting.  But many users
+object to config files.  And advanced users now have multiple different hardwares, and so must use multiple
+configuration files.  So Quisk now can manage its settings internally and no longer needs a configuration file.
+And multiple radios are supported with multiple named settings.
+</p>
+
+<h5> FAQ </h5>
+<dl>
+
+<dt>What is a "Radio"?</dt>
+<dd>
+A Radio means a named block of settings Quisk uses to control a specific kind of hardware.
+</dd><br>
+<dt>What settings are used when Quisk starts?</dt>
+<dd>
+Quisk uses the settings specified on the "Radios" tab.  This is a list of all named radios,
+plus ConfigFileRadio, plus "Ask me" to cause Quisk to request the radio name at startup.  When
+making changes to settings, it is wise to use "Ask me".  If things go wrong and your new radio
+won't start, you can select ConfigFileRadio at startup and continue to make changes to your
+new radio.
+</dd><br>
+<dt>I want Quisk to operate as before.</dt>
+<dd>
+Just ignore this feature.  Do not create any named radios and Quisk will operate exactly as before.
+</dd><br>
+<dt>I have multiple config files and multiple hardwares.</dt>
+<dd>
+Specify ConfigFileRadio as the startup radio on the Radios tab.  Then start Quisk with each of your
+config files.  For each config file, rename ConfigFileRadio to a suitable name.
+</dd><br>
+<dt>Should I delete my old config file?</dt>
+<dd>
+Maybe.  When Quisk starts it still reads your config file.  It then overwrites the settings in the
+config file with the settings for the named radio.  So it doesn't really hurt to have a config file.
+See below for continuing uses for config files.
+</dd><br>
+<dt>I only have one kind of hardware, but I sometimes use it with a transverter.</dt>
+<dd>
+Just create two radios for your single hardware.  Create different settings for the two cases.
+</dd><br>
+<dt>I made some changes and now Quisk will not start.  Since Quisk will not start, I can't change things back.</dt>
+<dd>
+Start quisk with the -a or --ask command line option to cause it to ask for the startup radio.  That is, start quisk
+with "python quisk.py --ask" or "C:\python27\python.exe quisk.py --ask".  Then specify ConfigFileRadio as the startup radio.
+Change the startup radio to "Ask me" until you get things fixed.
+</dd><br>
+<dt>Why do I have to restart Quisk to make the new settings happen?</dt>
+<dd>
+Some of the settings could happen immediately, such as CW tone.  But many settings control which buttons
+Quisk displays or other basic features that are awkward to change if Quisk is running.  Thus the
+need to restart.
+</dd><br>
+
+</dl>
+<h5> Uses for Config Files </h5>
+<p>
+There are still some advantages to config files.  If you run Quisk on a single board computer with
+an attached 7 inch screen, you may find the screen too small to conveniently make changes to the settings.
+And the settings are fixed anyway.  So a config file might be a superior solution.
+</p>
+<p>
+There are settings in the config file that are not yet available on the radio settings screens.  These
+are mainly the colors used by Quisk, the colors used for the band plans and the hot keys.  If you want
+to change any of these, you still need a config file with just these items.  Some of these setting are
+lengthy, and apply to multiple radios.  It is not clear they belong on radio screens.
+</p>
+<h5> Dual-Boot Systems </h5>
+<p>
+Quisk stores the radio settings in the file quisk_settings.json in the default location
+of your config file.  You can change the settings path by specifying settings_file_path="/my/path"
+in your config file.
+If you have a computer that can dual boot Windows or Linux, and you don't do anything else, you will
+have two settings files.  That is fine if the settings are different on Windows and Linux, but
+probably most are the same.  To use a single settings file, specfify settings_file_path to be the same
+file in your Windows and Linux config files.  For example:
+<pre>
+  # In Windows quisk_conf.py
+  settings_file_path = "C:\\pub\\quisk_settings.json"
+
+  # In Linux .quisk_conf.py
+  settings_file_path = "/home/jim/pub/quisk_settings.json"
+</pre>
+The above assumes that these files are really the same file, perhaps because they are on a shared drive,
+or because the Linux file maps the Windows partition, or because the files are subject to a sync.
+</p>
+<p>
+You will also need a hardware file name and widget file name that are the same on Windows
+and Linux.  For example, "./hermes/quisk_hardware.py" is the same on Windows (except for
+the forward slashes and backslashes).
+Even though you have a single settings file, Quisk will maintain separate values for the audio
+device names (different for Windows and Linux) and for data_poll_usec and latency_millisecs.
+</p>
+
+</body>
+</html>

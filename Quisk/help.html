@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="description" content="How to Operate Quisk">
+<meta name="author" content="James C. Ahlstrom">
+<meta name="keywords" content="quisk, sdr, software defined radio, ham radio">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head><body>
+<h3>
+QUISK Help (June 2016)
+</h3>
+
+<p>
+The <a href="docs.html">The documentation is here</a>.
+<br>
+<br>
+The <a href="defaults.html">The default configuration is here</a>.
+<br>
+</p>
+
+<p>This is the Help file for Quisk, a Software Defined Radio (SDR).
+Quisk was written and is maintained by Jim Ahlstrom, N2ADR,
+www.james.ahlstrom.name. Mail to jahlstr at gmail.com. Quisk has been
+greatly improved and extended by Leigh L. Klotz Jr. WA5ZNU, and by Andrew Nilsson VK6JBL.
+Thanks to Terry Fox WB4JFI for code improvements, and for adding support
+for the Charleston hardware. Thanks to Sid Boyce, G3VBV, for sending me SoftRock hardware to work
+with.  Thanks to Christof, DJ4CM, for many improvements to the GUI and for the Dx cluster display.
+Thanks to Philip G. Lee for adding native support for PulseAudio, and to Eric Thornton for
+adding PulseAudio async low-latency support.  There are many other contributers who are
+mentioned in the source code.
+</p>
+<p>
+Quisk supports several radios, such as HiQSDR, SDR-IQ, Hermes-Lite,
+SoftRock, etc. The Quisk software will read the samples from UDP or
+your sound card data, tune it, filter it,
+demodulate it, and send the audio to headphones or speakers.
+Quisk can also be used as a panadapter, by sending the radio IF output to Quisk.
+</p>
+<p>
+Quisk rhymes with "brisk", and is QSK plus a few letters to make it
+easier to pronounce. QSK is a Q signal meaning full break in CW operation,
+and Quisk has been designed for low latency. Quisk includes an input
+keying signal that can mute the audio and substitute a side tone.
+To install and configure Quisk, please see the docs.html file in the
+Quisk directory.
+</p>
+<p>
+Quisk is written in Python, an easy
+to learn but powerful language; see www.python.org. Source is provided
+because your own hardware is probably different from mine, and you will
+need to change something. Changing Python is easy.
+</p>
+
+
+<h3 id="g0.0.2">Configuration</h3>
+<p>
+Quisk is highly configurable. Many aspects of Quisk such as which buttons
+are displayed can be changed.  You can even add additional buttons of your own.  Quisk
+was originally designed to be a general purpose component in anyone's homebrew
+software defined radio.  Besides the usual configuration settings,
+Quisk uses a hardware control file and an optional widgets file.
+Quisk comes with a variety of hardware control files for different radios, but
+you can also write your own custom hardware file.  You can create a custom
+quisk_widgets.py file to add custom controls to the Quisk screen.  I use custom
+files for both.  See the n2adr directory for a rather complicated example.
+See docs.html for details.
+</p>
+<p>
+There are three sources of configuration settings.  When Quisk starts, it
+first imports default configuration information from the file
+quisk_conf_defaults.py. Then it reads your configuration file from either the standard
+location, or a custom location given by the command line "-c" option.  Your
+configuration file should not be a copy of quisk_conf_defaults.py.  It should be
+a small file with only the items that are different.  The use of a configuration file is optional.
+</p>
+<p>
+Quisk then reads the settings you have made on the configuration screens.  Most settings are
+available here, so a configuration file will not be necessary for most users.  To reach the
+configuration screens, press the Config button; or for the small screen layout, the screen
+selection master button followed by the Config button.  The configuration screens are on the right side
+and are called "radios" because you can save different settings for different radios.  There
+is a separate help screen describing the radio screens.
+</p>
+
+
+<h3 id="g0.0.3">QUISK Screens</h3>
+<p>
+Quisk can run with either the "Large screen" or "Small screen" layout.  The large screen layout
+is meant for PC screens, and all buttons are shown in four rows.  The small screen layout is
+meant for small touch screen devices, for those with sight impairment, or for those who run Quisk at
+a small screen size.  Most buttons are shown, but the band selection buttons, the mode buttons and the
+screen selection buttons are hidden behind three master buttons on the left.  Pressing one of the
+master buttons pops up a row of choices.
+</p>
+<p>
+The screen area can show a frequency graph, a waterfall display, an oscilloscope, the configuration
+screens, a graph of the receive filter in use or this Help screen.  The screen selection buttons are shown
+when you use the large screen layout.  Remember to press the master button the see the screen choices if you use the
+small screen layout.
+</p>
+<p>
+The Graph screen shows a frequency graph of received signals.
+Use the scale "Ys" and zero "Yz" controls to adjust the graph scale.
+You should see a noise trace that changes
+randomly. Then press "Test 1". This generates a test
+signal at 10 kHz, and you should see the spike on the graph. To tune
+to that signal, click the mouse on the graph near the spike. Hold the
+mouse button down and drag the red tuning line back and forth across
+the test signal. You should head a pure audio tone in your speakers.
+Use the "Vol" (Volume) slider on the left to change the volume.
+</p>
+<p>If you press Graph again, you will activate the peak hold functions
+labeled "GraphP1" and "GraphP2".  These will cause the graph to
+follow the peak signal, and decay back down at a slow rate. You can
+configure the time constants. Some buttons, like the Graph button, can be pressed
+repeatedly to select different settings.  These buttons have a circular arrow on the right.  
+</p>
+<p>
+The Waterfall shows a time history of the amplitude of received signals.
+You will need to adjust "Ys" (Y scale) and "Yz" (Y zero) to get a
+colored display. Press "Test 1" to turn the test signal 
+on and off. Watch it appear and disappear from the waterfall.
+The top of the waterfall shows a small graph screen. You can grab the
+bar between the screens with your mouse and move it up and down to
+adjust the relative sizes.
+To adjust the scale and zero of this graph, hold down the Shift key while
+using the "Ys" and "Yz" sliders.
+</p>
+<p>
+The oscilloscope and RX Filter screens are mostly used for debugging.
+The Config screen shows a number of sub-screens that display status,
+and provide for control of Quisk parameters.  See below.
+</p>
+<h3 id="g0.0.3">QUISK Controls</h3>
+<p>
+Below the screen area there are one or two slider controls to the left that
+control the radio sound volume, and optionally the CW sidetone volume.
+Side tone only appears if you configure Quisk to operate as a CW transceiver, and you provide a key signal.
+The four sliders to the right control RIT,
+the graph and waterfall scale and zero points, and the zoom feature.
+
+The Rit slider controls receiver incremental tuning, and is active when the RIT button is down.
+It adds a small offset to the receive frequency.   Leave RIT off for SSB unless
+a station is off frequency a bit; then use RIT to tune him in while leaving
+your transmit frequency unchanged.  When you select CW, the RIT
+must be turned on to provide an audio output, so Quisk automatically turns on RIT and sets it
+to plus or minus the configured CW tone frequency.  The audio side tone (if a hardware key
+line is used) is set to the same.  Just click CWL or CWU, tune the
+frequency by clicking exactly on the signal, and everything will work.
+
+The Ys and Yz sliders control the scale and zero of
+the screen in view.  For the Graph screen and the Rx Filter screen
+they control the scale and zero of the Y axis.  For the Waterfall
+screen they control the Waterfall color scale; and if the Shift key is
+down, they control the upper graph Y axis.  For the Scope screen
+the Ys slider controls the Y axis scale, and the Yz slider does
+nothing.  The sliders have no effect on other screens.
+The Zo (zoom) slider expands the frequency scale (X axis) of the Graph
+and Waterfall screens so that narrow signals can be examined. 
+Quisk operates normally when this slider is all the way down.  As
+it is raised, the frequency is expanded around the tuning
+frequency.  That is, the tuning frequency is moved to the center,
+and the frequency scale is expanded.  It is still possible to tune
+Quisk as usual while this control is in use.
+</p>
+<p>
+The frequency display always displays the transmit frequency.  This is the frequency shown
+by the red tuning line on the Graph and Waterfall screens.  This equals the receive
+frequency unless Split is used (see below).
+You can change the transmit frequency by clicking
+the top or bottom of the digits, or by rolling the mouse wheel over the digit.
+The frequency display window will turn red to indicate sample capture overrun (ADC clipping).
+The large screen layout has a frequency entry window.  Enter a frequency in Hertz without a decimal point, or megahertz with one.
+The left and right pointing arrows move the frequency up and down the band without changing the tuning.  You can
+right or left click them, or hold them down with the mouse to keep moving.
+</p>
+
+<p>
+The S-meter displays the signal strength in S units and in dB. Zero dB is
+clipping, the same as on the graph screen. The S-meter uses the specified
+filter bandwidth to choose the exact number of FFT bins to square and average.
+That is, it displays true RMS based on the FFT bins, not on the post-filter audio. Note
+that for a noise floor on the graph of -110 dB the S-meter will read -93 dB (depending
+on some details). That is
+because the bandwidth specified is much greater than the FFT bin width, and more
+noise is getting through. Find a flat noise frequency, change the filter bandwidth,
+and watch your S-meter measure the noise. The conversion from S-units to dB depends
+on your hardware. There are 6 dB per S-unit, and you can adjust to 50 microvolts for S9.
+If the correction depends on the band, you can make a band-dependent
+correction in your hardware file.
+The S-meter window has a button to the
+right to select what is shown; the S-meter, the frequency measurement or the RMS audio voltage.
+Quisk can measure and display the frequency of a continuous tone RF
+signal.  To use this feature, press the S-meter button, and
+select one of the Frequency items.  The numbers are the averaging
+times in seconds.  Then find a signal of interest and put the
+tuning line exactly on it.  Quisk will search 500 Hertz up and
+down from the tuning line and will display the frequency of the largest
+signal.  This feature works on AM signals
+and continuous signals from oscillators, etc.  It does not work
+for SSB as there is no continuous signal.  To calibrate your
+hardware, measure the carrier from WWV
+or other frequency standard, and change your clock rate until the
+indicated frequency is correct.
+Quisk can display the RMS audio voltage.  This is used for noise measurements.
+</p>
+
+<h3 id="g0.0.3">QUISK Control Buttons</h3>
+<p>
+The Quisk buttons are the usual buttons you see on any radio.  Some buttons have a cycle symbol
+or a cycle button marked ↷ that means the button can cycle through a list of values.  Some buttons have
+a secondary button that can pop up a menu or a slider to make adjustments.
+</p>
+<p>
+Mode:  The mode buttons select CW, USB, AM, FM etc.  This is a master button in the small screen layout.
+The special mode IMD generates a two-tone test signal for transmitter testing.  The "DGT" modes are
+for external digital mode programs such as fldigi.  See below.
+<br><br>
+Band:  The band buttons select the band 40 meters, 20 meters etc. The bands shown can be configured.
+This is a master button in the small screen layout.
+<br><br>
+Screen:  The screen button selects the screen that is shown.  See above.
+This is a master button in the small screen layout.
+<br><br>
+Filters:  The filter buttons select the bandwidth of the receive filters, 2700 Hertz, 6000 Hertz etc.
+The last filter button has an adjustable bandwidth.
+<br><br>
+Band Up/Down:  The up and down arrow buttons move up and down the band without changing the tuning frequency.
+<br><br>
+Mute: Mute (zero) the receive audio volume.
+<br><br>
+AGC: Automatic gain control is active when this button is up or down, but the settings are different.
+Adjust the AGC for both the up and down positions to control how much gain variation is allowed.  When the
+slider is at maximum (all the way up), all signals, even band noise,
+will have the same maximum amplitude.  For lower settings, loud
+signals will have the maximum amplitude, but weaker signals will have
+less amplitude.  A medium setting allows you to hear the relative
+amplitude of signals and any QSB while still protecting your
+ears.  I set the AGC On setting to a high value, and the AGC Off
+setting to a lower value that allows band noise to be faintly heard.
+When FM is selected, this button changes to a
+Squelch button, and you can adjust the squelch level.
+<br><br>
+NB: The noise blanker has several levels.
+<br><br>
+Notch: An automatic notch feature that can null out one or two continuous signals, such
+as AM carriers that interfere with SSB reception.
+<br><br>
+RfGain: The Rf gain control if your hardware supports this.
+<br><br>
+Antenna:  Antenna selection if your hardware supports this.
+<br><br>
+Spot: This transmits a constant CW signal for tuning.  The level is adjustable.  You might also need to press PTT
+or assert your key line depending on your hardware.
+<br><br>
+Split:  This splits the receive and transmit frequencies so they can be different.  Two tuning lines
+will appear; red for the transmit frequency and green for the receive frequency.  This is useful for
+working a DX station split.  When you tune with the mouse, the closest tuning line is moved.
+You can lock the transmit frequency.  You can reverse the receive and transmit frequencies.
+You can decode audio from both frequencies and play them on the left and right speakers.  
+<br><br>
+FDX: Full duplex allows you to transmit and receive at the same time if your hardware allows this.
+<br><br>
+PTT: Push to talk; start transmitting.
+<br><br>
+VOX: Voice operated relay; turn on PTT when you speak into the microphone.
+<br><br>
+Test 1: Generate a test signal 10 kHz above the screen center frequency.
+<br><br>
+Memory buttons:
+Quisk can remember and return to stations.  When you have tuned in
+a signal of interest, press the "Save" button Ⓜ↑ to save the frequency,
+band and mode.  Repeat for more
+signals.  Now press "Next" Ⓜ ➲,
+to switch to the next saved signal, and press "Next" repeatedly to
+cycle through the list.  To delete a saved signal, first tune to
+it with "Next" and then press "Delete" Ⓜ ☓ . If you save a large
+number of signals, right click the "Next" button Ⓜ ➲, and you will get a
+popup menu so you can jump directly to a station.  The saved
+stations will appear in the station window below the frequency X axis.
+The saved stations can be on different bands.
+<br><br>
+Favorites button:
+Quisk can save a list of favorite stations.  Press
+Config/Favorites to access the screen, and right-click the left label
+to insert and delete stations, and to tune to them.  The two
+favorites buttons provide direct access to this screen.  The
+★ ↑ button enters the current station into the screen; just
+provide a name.  The ★ ↓ button jumps to the screen;
+right click the left label and choose "Tune to".  Favorite
+stations will appear in the station window with a Star symbol ★ .
+<br><br>
+Temporary sound recording:
+There are Record and Playback buttons to save and recall radio sound.  Push
+Record to start recording radio sound.  The maximum time to record
+can be configured, and after this limit
+older sound is discarded.  That is, the most recent sound is
+retained up to some maximum time.  Push Playback to play the sound.  If you are
+transmitting, the recorded sound is transmitted in place of mic
+input.  This sound is not speech processed, so it can be used to
+give another station an accurate indication of how they sound.
+<br><br>
+Sound recording to a file:
+Quisk can record the speaker audio and/or the digital I/Q samples to WAV
+files.  Set the file names in the Config screen.  Then Press
+the "FileRec" button to begin recording, and release it to stop. 
+If you press it again, it starts a new recording to replace the
+previous one.  The speaker audio is stored as 16-bit monophonic
+samples at the audio play rate.  The digital I/Q samples are stored as two I/Q
+IEEE floating point samples at the sample rate.  Note that a WAV
+file has a maximum size of 4.3 gigabytes, and that will limit the time
+of the recording.
+<br><br>
+Sound playback from a file:
+Quisk can transmit a message from a WAV file.  Record your message at
+a high level (almost clipping) at 48 ksps, 16-bit, one channel (monophonic).
+Do not leave silence at the beginning or end of the message.  This feature is
+meant for CQ messages, for example "CQ contest, CQ contest, this is N2ADR".
+Then enter the file name on the Config/Config screen.  Set the repeat time,
+or set the repeat time to zero for one-time play.  Then press the "File play"
+button to transmit.  Quisk will press the PTT button for you, and release it
+during pauses.  To interrupt playback, press PTT or release FilePlay so you can answer.
+</p>
+
+<h3 id="g0.0.4">Tuning in Stations</h3>
+
+<p>
+First select CW, USB etc. with the mode buttons.  This is a master button on the small screen layout.
+On the Graph or Waterfall screens, you tune in a CW signal by clicking
+above the X axis directly on the signal. You tune in an SSB signal by clicking on the upper edge
+(lower sideband) or the lower edge (upper sideband). That is, you always click
+where the carrier goes.  You can also click, hold down the
+mouse button and drag the tuning line. The speed of tuning is lowest
+close to the X axis, and increases as you move up. Try it.
+</p>
+
+<p>
+If you click below the X axis, tuning will not jump to that frequency, but
+you can still hold the button and drag. That is useful for small
+adjustments. The mouse wheel will move the frequency up and down and round the
+frequency to multiples of 50 Hertz.
+</p>
+
+<p>
+If you right-click a signal, Quisk tunes to the signal as before, and also
+changes the VFO to move the
+signal to the center of the screen.
+</p>
+
+<h3 id="g0.0.6">Station Window and Dx Cluster </h3>
+<p>
+There is a station window below the frequency axis (X axis) to display
+stations of interest.  This feature was added by Christof,
+DJ4CM.  It consists of zero or more lines containing an M-Circle
+symbol Ⓜ for memory stations, a Star symbol ★ for
+favorite stations and a Dx symbol for Dx Cluster stations.
+The default number of lines is one, but you can add more
+lines if the display becomes too crowded.  If you move your mouse
+near the marked frequency, a popup window will appear with station
+details.  Left-click the symbol to tune to it.
+There are Dx Cluster telnet servers available that provide real time
+information on Dx station activity.  You must configure the host name, the port
+and your call sign to use this feature.
+This feature will run continuously unless the host is the
+null string.  The Dx stations will appear in the station window as
+they become available from the server.
+</p>
+
+
+<h3 id="g0.0.9">Configuration Screens </h3>
+
+The Configuration screen shows a group of sub-screens that give status information,
+and that adjust various Quisk control parameters.
+The Status screen shows Quisk status information.  The Sound screen gives the name of
+the sound cards detected.
+
+The Favorites screen allows you to enter frequencies and modes for
+stations, nets, etc.  To add a line, right-click the left label
+and select Insert or Append.  To tune to a station, select
+Tune.
+
+<p>
+The Config screen can pop up an
+amplitude and phase correction window for SoftRock and similar receivers.
+If you use the sound card for input, you may need to correct for small errors
+in the I and Q amplitude and phase. First change to the correct band, because
+corrections are saved for each band. Press the button on the config
+screen to bring up a correction screen. Then feed a test signal to your hardware
+(or use a strong available signal) and look at the signal image. Adjust the
+slider controls to reduce the image. The upper slider is the fine adjustment,
+and the lower is the coarse. You will need to adjust both amplitude and phase
+as they will interact.  The amount of available adjustment range
+can be configured.  When
+you have a final correction, it is a good idea to write it down. 
+The correction point is saved based on the VFO frequency, and you will
+probably need two or three correction points per band.
+</p>
+<p>
+The Tx Audio screen controls the transmit audio, and
+enables you to record and play it back for test purposes.
+To have good transmit audio, you must start start with a clean
+audio source.  You can plug in a USB mic or headset as a
+source.  Or you can connect an analog mic to the mic input of your
+sound card.  Or you can connect your mic to a preamp, and then to
+the line input of your sound card.  The mic should be directly in
+front of your mouth when you speak.  Try to avoid headsets that
+cause you to speak across the mic.  The idea is to make your voice
+as loud as possible relative to the background noise in your shack.
+
+</p>
+<p>
+
+You need to adjust the mic sound level as high as possible, but without
+too much clipping.  Speak normally and try to get a level a few dB below
+zero (clipping).  The peak level should be at least -20 dB, and
+preferably above -10 dB.  Infrequent clipping (above 0 dB) is OK,
+because Quisk will clip the audio anyway when it processes it.  It
+may be difficult to figure out how to adjust the mic level.  For
+Linux, figure out the correct control number and use mixer_settings
+or use one of the Linux mixer apps.
+For Windows, use the level
+control on the audio control screen in Control Panel, but be careful
+that another application does not change it after you set it for
+Quisk.  Quisk will attempt to adjust the audio level with its AGC,
+but it helps to start with a good level.
+
+</p>
+<p>
+
+Refer to the "Tx Audio" tab.  Clip is the amount of audio clipping
+from zero to 20 dB.  There is actually some clipping at zero dB
+due to the mic AGC.  Preemphasis boosts the high frequencies in
+your voice.  Zero is no boost, and 1.0 is 6 dB per octave. 
+Use the record and playback buttons to test for the best control
+settings.  Notice that your voice will become louder with more
+clipping.  Note that SSB, AM, FM and FDV each have their own settings,
+so change to the correct mode before you start.  Audio processing
+is most useful for SSB, so if you are a DX enthusiast, use aggressive
+settings.  I only use AM for rag chewing, so I use zero
+preemphasis and 4 dB clipping.  For FM, I use zero clipping and
+preemphasis.
+
+
+<h3 id="g0.0.11">Digital Modes DGT-* </h3>
+
+<p>
+These modes are used for digital signals, and require an  external
+program such as Fldigi or FreeDV to decode the signals.  Press the "DGT-"
+button repeatedly to select a digital mode.  To use Fldigi,
+first start Quisk; then start Fldigi and change "Rig Control" to "Use
+XML-RPC".  Now changing the frequency in either program should
+change the other.  Now you need to connect the samples.
+You must configure a loopback sound device to transfer samples
+between Quisk and fldigi.  Quisk sends its audio to Fldigi to
+decode signals, and Fldigi sends audio to Quisk for transmission. 
+See the <a href="docs.html">documentation</a> for more information.</p>
+
+<h3 id="g0.0.12">Hamlib Control </h3>
+
+Most digital mode decoders and logging programs use Hamlib to control
+a rig.  To connect Hamlib to Quisk, configure your client
+program to use rig 2 and device localhost:4575.  Rig 2 specifies a
+TCP connection, and Quisk is listening on localhost port 4575.  If
+your program does not offer rig 2, please update your Hamlib files for
+that program.  If your program can not set the TCP port to
+localhost:4575, then change the port Quisk uses by adding "hamlib_port
+= 4532" to your config file. 
+See the <a href="docs.html">documentation</a> for more information.
+
+<h3 id="g0.0.13">Multiple Receivers </h3>
+
+Quisk can tune in two frequencies in the same band by using the "Split" button.
+This is meant for working DX split, but it can be used anywhere in the band.
+But if you want to receive in two different bands at once, you need SDR hardware that
+can support multiple sub-receivers.  The Hermes-Lite and other Hermes hardware can do this.
+Press the "Add Rx" button to add additional receivers.  You will get multiple receiver
+screens with their own control buttons and menus.  The main buttons in Quisk still control
+the main receiver and transmitter.  The menu button on the "Add Rx" button controls where
+the sub-receiver sound goes.  When a sub-receiver "Play" button is pressed, you can play the sound
+alone, or together with the main receiver sound.  There is an additional device on the sound screen
+that can direct the sound from sub-receiver 1 to an external digital program.
+There is a limit to how many sub-receivers your hardware can support.  Quisk does not know this
+limit, so please do not request more sub-receivers than actually exist.
+
+
+<h4>Have fun with Quisk.</h4>
+</body>
+</html>

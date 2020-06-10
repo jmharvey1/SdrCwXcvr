@@ -1,0 +1,30 @@
+Notes on libusb and pyusb
+=========================
+
+Libusb provides access to the USB bus from user space.  It uses the
+files in /dev/bus/usb/*/*.  The following commands are useful on Linux:
+
+List devices on the USB bus:
+  lsusb
+Add -d 16c0:05dc for a specific device, -v for more information.
+
+List file permissions for bus 001 device 005:
+  ls -l /dev/bus/usb/001/005
+These permissions default to 660 group root.
+
+List udev information for bus 001 device 005:
+  udevadm info --query=all  --name=/dev/bus/usb/001/005 --attribute-walk
+These items can be used in udev rules.
+
+Default USB permissions do not allow a non-root user to write to the bus.
+To change permissions, add a rule to /etc/udev/rules.d/local.rules like this:
+  SUBSYSTEM=="usb", ATTR{idVendor}=="16c0" , ATTR{idProduct}=="05dc", MODE="0666", GROUP="dialout"
+Then notify udev with "udevadm control --reload_rules", or /etc/init.d/udev/restart.  But
+on my system, I need to plug in the SoftRock and reboot.
+
+To install Libusb on Windows, follow the instructions in
+    http://sourceforge.net/apps/trac/libusb-win32/wiki.
+Run the program libusb-win32*/bin/inf-wizard.exe.
+On Windows, when libusb-win32 is properly installed, Device Manager reports a
+top-level device "libusb-win32 devices" and a sub-device "DG8SAQ-I2C".  Otherwise
+it reports "Unknown Device" under "Universal Serial Bus controllers".

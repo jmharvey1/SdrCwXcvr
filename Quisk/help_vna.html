@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="description" content="Documentation for Quisk VNA"><meta name="author" content="James C. Ahlstrom"><meta name="keywords" content="quisk, vna, vector network analyzer, ham radio">
+<title>QUISK Help File</title>
+</head><body>
+<h3>
+Quisk VNA Help (December 2016)
+</h3>
+
+
+<p>This is the Help file for Quisk VNA, a program that turns the
+Quisk2010 and HiQSDR transceiver and the Hermes-Lite transceiver into a Vector Network Analyzer
+(VNA).  This Help appears when you press the Help button. Quisk is written by Jim
+Ahlstrom, N2ADR,
+www.james.ahlstrom.name. Mail to jahlstr at gmail.com. To run the
+Quisk VNA program, use "python quisk_vna.py" or set up a
+shortcut. This program only works with hardware that is based
+on UDP. It does not work with SoftRock hardware.
+</p>
+<p>For HiQSDR you need to update your firmware to Version 1.3 or later.
+For Hermes-Lite update to 32 or later.  The
+new firmware locks the phase of the RF output to the phase of the RF
+detector. There is a time delay in the path, but this is removed
+by the calibration procedure. The calibration graphs will show a linear phase change with frequency due to this delay.
+</p>
+<p>There are two ways to use your hardware. You could connect the
+RF output through attenuators, through a device under test and then
+back to the RF input. This is called transmission mode. It is
+used to plot the response of filters and to measure the electrical
+length of cables. Or you could connect the RF input and output through
+attenuators to
+a resistive return loss bridge. This is called reflection mode. It is
+used to measure SWR and impedance. You must choose a mode and
+calibrate for that mode and hardware before you take any data.
+The calibration is saved and will be restored the next time the
+program starts.  This is convenient when making repeated measurements,
+but you should calibrate frequently for best accuracy.  Hermes-Lite requires a power
+on/off and a calibration before taking data, but the calibration is good until it is powered down.
+</p>
+<p>
+The hardware generates RF output only when one of the "Calibrate"
+buttons or the "Run" button is turned on.
+The calibration routines save data every 15 kHz from zero
+to sixty megahertz (thirty for Hermes-Lite). You can change the measurement frequency span
+at any time without recalibration. Although you can set a
+frequency span up to sixty (thirty) megahertz, my original hardware has a low
+pass filter cutoff of 35 megahertz, so the upper frequency range is
+smaller and will appear noisy.
+Since the transmit and receive frequencies are equal, the data is at
+DC, and is averaged and effectively low pass filtered. This
+provides immunity from interference when measuring an antenna.
+<h3 id="g0.0.1">Input Protection </h3>
+Do not connect the RF output to the RF input without inserting
+attenuators. The output will overload the input and result in
+clipping in the ADC and possible damage. If your device under
+test is an amplifier be especially careful to add additional
+attenuation to avoid damage. Add enough attenuation to avoid
+clipping, but not so much that you lose dynamic range. The
+calibration screens show the ADC level. These attenuators also
+help to stabilize the input and output impedance and increase
+accuracy. I use the HAT series of attenuators from Mini-Circuits.
+
+
+<h3 id="g0.0.2">Transmission Mode
+</h3>
+
+You must perform a calibration before you can take data. First
+set the mode to "Transmission" and leave it there. Connect attenuators
+and a cable between the RF input and output.  Press the "Calibrate.." button.
+With the cable connected press "Short".  The "Short" calibration is
+required for transmission mode.  For the optional "Open" calibration, disconnect
+the cable and press "Open".  Then press "Calibrate" to save the calibration.
+Connect the cable and press "Run" and
+you should see a flat line at zero dB level and zero phase. Now
+insert your test device in series. The test device could be a
+filter, an amplifier (be careful) or an additional length of
+cable. Press "Run" to take data.
+
+<h3 id="g0.0.3">Reflection Mode
+</h3>
+<p>
+This mode is used with a resistive return loss bridge.
+Connect the RF
+output to the generator terminal, and the RF input to the detector
+terminal. Use attenuators on both. You must
+perform a calibration before you can take data.
+First set the
+mode to "Reflection" and leave it there.   Press the "Calibrate.." button.
+Connect an open circuit (or nothing) to
+the impedance
+terminal of the bridge, and then press "Open". Connect a
+short circuit to the bridge, and then press "Short". Connect
+a 50 ohm termination to the bridge and then press "Load".
+Then press "Calibrate" to save the calibration.
+If you do not have a set of Open/Short/Load standards, you can just
+use "Open" alone, but it is highly
+recommended to use Open, Short and Load.
+</p>
+<p>
+Now connect a 50 ohm termination to the bridge, and
+press "Run". The graph will show the magnitude and phase of the
+reflection coefficient, and the return loss is the drop in magnitude
+below zero dB. Ideally your bridge will have a directivity of 30
+dB or more. The phase may be noisy if the magnitude is very
+small. Now connect an
+unknown impedance to the bridge; for example, an antenna. The
+graph will plot the return loss, reflection coefficient and SWR.
+The status line will display the frequency, the reflection coefficient and SWR, the impedance, the equivalent
+capacitance or inductance for that impedance, and the values for the parallel equivalent circuit.
+</p>
+<p>
+You can attach any impedance, such as an unknown capacitor or inductor,
+and read the value directly. The value may seem to vary with
+frequency due to stray inductance, variation of permeability with
+frequency, and bridge imperfections; so choose a reference frequency
+wisely. Remember that the bridge measures the impedance relative
+to fifty ohms, so accuracy suffers if the impedance is outside the
+range of 5 to 500 ohms or so.
+</p>
+<h3 id="g0.0.4">Fun</h3>
+<p>
+In transmission mode, add an extra length of cable and see the phase
+change. When the phase change is ninety degrees, that is a
+quarter wave. The effect of velocity factor is included, and can
+be measured. Use a bare wire (with attenuators) as the test
+fixture, and then add a ferrite bead to the wire to measure its
+properties. Insert a filter to see its response.
+</p>
+<p>
+In reflection mode, measure your antenna from zero to sixty (thirty)
+megahertz. If it is a dipole, you will see the drop in SWR at its fundamental and
+third harmonic. Add a cable to the bridge to see its impedance at
+a quarter and half wave length. Measure the length of your
+transmission line by replacing your antenna with a 100 ohm
+resister. The bridge will read 100 ohms at multiples of a half
+wavelength. If you short out your antenna at the far end of your
+transmission line, the bridge will read zero at half wavelengths, and
+infinity at quarter wavelengths.
+</p>
+</body>
+</html>
