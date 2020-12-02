@@ -5,3 +5,6 @@ Some general instructions on how the files are to be used will be found here as 
 Disclaimer: Some folders found here may not be complete. If you think that's preventing you
 from being able to use them. Please use the "issues" section or the youtube's comments area 
 to describe the problem. Hopefully I will be able to add the missing files.
+
+Note: the "Quisk" folder supports Quisk running on Mint19.1 & Python 2.7. "quiskKW4KDpy3.tar.gz" is for Mint20 / Python 3. To install and run these versions of QUISK, follow the Linux Initial Installation" instuctions found here: 	https://james.ahlstrom.name/quisk/docs.html#Welcome
+But use the source files found here, inplace of the onse referenced at the QUISK website
