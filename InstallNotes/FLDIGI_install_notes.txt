@@ -1,0 +1,138 @@
+Hint: Before doing anything, read all the way through these notes first
+
+on Linux Mint 20
+Before FLDIGI can be compiled from source code, Mint 20 needs the following “prep- steps”: 
+
+1. Choose System->Software Sources from the main menu to open the Software Sources program
+
+    click the Source code repositories button
+    click the OK button
+
+
+2. See Instructions found at:
+http://www.w1hkj.com/doku/doku.php?id=howto:building_on_debian-ubuntu-mint
+From the above site, the Two main instructions to follow are:
+  Install the basic development packages (all distros)
+    $ sudo aptitude install build-essential
+  Install the build dependency packages (all distros)
+    $ sudo aptitude build-dep fldigi
+
+3. Use synaptic package Manager to install: libsamplerate0-dev
+4. Use synaptic package Manager to install: portaudio19-dev
+5. Use synaptic package Manager to install: libpulse-dev
+
+
+
+The "sudo aptitude build-dep fldigi" command installed the following:
+  asciidoc asciidoc-base{a} asciidoc-common{a} autoconf{a} automake{a} autopoint{a} autotools-dev{a} debhelper
+    dh-autoreconf{a} dh-strip-nondeterminism{a} docbook-xsl dwz{a} libfile-stripnondeterminism-perl{a}
+    libflac-dev{a} libflxmlrpc-dev libflxmlrpc1v5{a} libhamlib-dev libhamlib2{a} libogg-dev{a} libsndfile1-dev
+    libtool{a} libusb-1.0-0-dev{a} libvorbis-dev{a} libxml2-utils{a} po-debconf{a} xsltproc
+  The following packages are RECOMMENDED but will NOT be installed:
+    asciidoc-dblatex asciidoc-doc libarchive-cpio-perl libltdl-dev libmail-sendmail-perl libusb-1.0-doc
+    vim-asciidoc xmlto xmlto:i386
+
+After completing/verifying the above packages have been installed, you can now begin the source code compile/install steps:
+ 
+1. Go here to download my version of FLDIGI:
+
+https://github.com/jmharvey1/SdrCwXcvr/blob/master/FLDIGI/fldigi-KW4KD.tar.gz
+
+2. Create a workspace folder in your home directory i.e MintFLDIGI
+
+3. Unpack the tarball (fldigi-KW4KD.tar.gz) to your workspace directory.
+4. Now find the fldigi-4.0.1 folder inside your workspace directory, and open it.
+5. Next,  "Right Click" the opened folder (fldigi-4.0.1 ) and choose "Open in terminal".
+ in the command terminal window do these steps:
+
+1. confirm the terminal window is in the correct folder. It should read similar to this:
+
+                jim@SamsungMint20:~/FLDIGI/fldigi-4.0.1$
+
+2. run: ./configure
+3. run: make
+4. run: sudo make install
+
+Summary/output of the above steps:
+FLDIGI “./config” command should conclude with this listing:
+Configuration summary:
+
+  Version ..................... 4.0.1
+
+  Static linking .............. no
+  CPU optimizations ........... none
+  Debugging ................... no
+
+  fldigi ...................... yes
+  flarq ....................... yes
+
+  i18n ........................ yes
+
+ fldigi build options:
+
+  sndfile ..................... no
+  oss ......................... yes
+  portaudio ................... yes
+  pulseaudio .................. yes
+
+  flxmlrpc .................... no
+
+  hamlib ...................... no
+
+The FLDIGI “make” command should conclude with this Listing:
+
+    make[3]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[2]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[1]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[1]: Entering directory '/home/jim/MINTFLDIGI/fldigi-4.0.1'
+    make[1]: Nothing to be done for 'all-am'.
+    make[1]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1
+
+The FLDIGI "sudo make install" command should conclude with this listing:
+
+    make[4]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[3]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[2]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[1]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1/src'
+    make[1]: Entering directory '/home/jim/MINTFLDIGI/fldigi-4.0.1'
+    make[2]: Entering directory '/home/jim/MINTFLDIGI/fldigi-4.0.1'
+    make[2]: Nothing to be done for 'install-exec-am'.
+    make[2]: Nothing to be done for 'install-data-am'.
+    make[2]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1'
+    make[1]: Leaving directory '/home/jim/MINTFLDIGI/fldigi-4.0.1'
+
+The First time you launch FLDIGI you should see the FLDIGI configureation wizard
+Fill in blanks as needed
+Special setup entries to note:
+In the "Rig" form select the XML-RPC tab and verify the Use XML-RPC program" check box is NOT checked.
+urce
+(For quisk, no rigcontrol is needed)
+
+soundcard>devices tab:
+	PortAudio check box: “checked”
+		and pulseAudio selected for both “capture” and “playback” 
+
+soundcard>settings tab:
+	sample rate set to 48000 for both “Capture” and “Playback”
+	
+In the "configuration" form, tab "Misc/Sweet Spot" set CW entry to: 750
+In the "configuration" form, tab "Web/Call Lookup" check "QRZ"
+and if you have a QRZ subscription in the "Data base lookup" section, check QRZ and enter your account credentials
+
+See stock FLDIGI configure instructions for all other user preferences .
+
+
+When FLDIGI main screen appears use "OP Mode" menu option and select "CW" mode
+Also at the bottom of the main screen, set the center freq (decode frequency) to 750Hz
+
+PulseAudio Volume Control GUI/Application:
+Use Software manager to Install “pavucontrol”
+To setup pulseaudio to set the level (hear) the CW side-tone put fldigi in tune mode and then
+ open pulse audio and and on the playback tab
+and on the fldigi line (section) set the level to 100% and the Sound output to: "Built-in Audio Stereo"
+
+Special Source Code mod note: 
+If you are a QRZ.com subscriber, and wish to use fldigi to upload your logbook entries to QRZ.com
+Open the file: "fldigi-4.0.1/src/logbook/qrzlogbook.cxx" and on line 120, "string usrAPIkey = ....", enter your qrz.com API key before compiling.
+you can then use the "logbook>LOTW>export" menu option to push individual log entries to QRZ.
+

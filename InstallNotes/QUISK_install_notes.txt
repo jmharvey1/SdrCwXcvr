@@ -1,0 +1,87 @@
+revised: 20201220 - the following pertains specifically to Mint20/Python3  installation:
+
+To run QUISK, you'l also need to verify or install some additional libraries. The easy way to do it is use mint's "synaptic package manger" and install these libraries:
+
+    python3-wxgtk4.0
+    libfftw3-dev
+    libasound2-dev
+    portaudio19-dev
+    libpulse-dev
+    python3-dev
+    libpython3-dev
+    python3-usb
+    python3-serial
+    python3-setuptools
+    python3-pip
+Add PulseAudio; use software manager tool and install Pavucontrol
+
+Next, unzip/extract the "quiskKW4KD.tar.gz"file:
+there are a number of ways you can go at "unzipping" the  "quiskKW4KDpy3.tar.gz" file.
+One way to do it is, first create the target folder in your "home" directory. Next, open this folder, and then use the 'right' click menu option "open in terminal" to open the command window.
+Make sure the command prompt ends with the target folder's name followed by the "$".  Given that that's true, enter this command:
+
+     "tar xvzf /home/jim/Downloads/quiskKW4KDpy3.tar.gz" (less the quotes, & edited to reflect your path).
+
+This will unzip the files and copy them all into your target folder.
+
+After extracting files from quiskKW4KDpy3.tar.gz, move the DOTquisk_conf.py to your home/<user> directory and rename it ".quisk_conf.py"
+the .quisk_conf.py file located in your home directory currently has an entry (near the bottom) that looks like this:
+
+    # on the station window under the graph and waterfall screens.
+    # user_call_sign is your call sign which is needed for login.
+    user_call_sign = 'KW4KD' # Set Dx Filter skimmer and unique > 2'
+
+Edit this line (using any text editor) to show your call sign in place of mine i.e.
+    user_call_sign = 'X9XXX'
+
+If you see this error message, while attempting to start QUISK:
+"......
+self.open()
+  File "/usr/lib/python2.7/dist-packages/serial/serialposix.py", line 294, in open
+    raise SerialException(msg.errno, "could not open port %s: %s" % (self._port, msg))
+SerialException: [Errno 13] could not open port /dev/ttyACM0: [Errno 13] Permission denied: '/dev/ttyACM0'
+"
+This issue with the permissions for /dev/ttyACM0 can be permanantly solved by adding yourself to the dialout group. 
+do this by opening a terminal session, and run this command: 
+      sudo usermod -a -G dialout $USER
+You will have to logout and then log back in before the group change is recognized.
+
+Use the PulseAudio Volume Control (found at Menu => Sound&Video => PulseAudio Volume Control)  "Input Devices" tab "Via USB Dongle Analog Stereo" Port: Michrophone volume slider control to set the base line spectrum level to -100 with no signal input applied to the SDR Antenna input connector (ie 50 ohm Dummy load connected to antenna input)
+
+if you are running this on another version of LINUX then it may be necessary to rebuild the _quisk.so file
+these ar the general steps needed to rebuild this file:
+Steps:
+
+1 use synaptic package manger to install: build-essential
+2 open a terminal window in the quiskKW4KD folder
+3 compile and install/rebuld using the command: "make" (less the quots)
+
+If you're experiencing troubles getting the parts and pieces needed to run quisk in place, run "testtools.py"
+It is a stripped down version of quisk that uses the idle terminal as a logger to report the state of startup processes used to get quisk running
+If it sucessfully starts, its a single band receiver pretuned to W1AW (40 Mtrs) 
+
+QUISK DeskTop Launcher:
+the "command" I use in my shortcut to launch QUISK:
+     python /home/jim/QUISK/quiskKW4KD/quisk_KW4KDR1.py
+
+However, if a "No Console" view of the app is perferred, use this command:
+     nohup /home/jim/QUISK/quiskKW4KD/quisk_KW4KDR1.py & 
+
+
+Note1: You'll need to edit the above command(s) to match your path to "quisk_KW4KD" ( most likely the the "jim/QUISK" part)
+Note2: the path is case sensitive.
+
+Changing Colors:
+In the ".quisk_conf.py" file (in the "home" directory) you could add the following lines (anywhere in the file, but the bottom is where I placed them):
+
+            #waterfall_palette = 'B'
+            #waterfall_palette = 'C'
+
+Then un-comment one at a time,  to see if you like one of these color schemes better than the default "A" mode. 
+I kind of liked "C" the best on my computer. 
+But to be honest screen real-estate is so precious on setup here, I seldom run QUISK with the waterfall active.
+
+BTW, there are other color options for the control screens as well:
+
+            #color_scheme = 'B'
+            #color_scheme = 'C'

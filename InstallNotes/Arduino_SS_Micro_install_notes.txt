@@ -1,0 +1,9 @@
+Compiling and down loading the the si5351_SSMicro_SDR_QUISK sketch requires no specail handling other than noting that the included github library "Etherkit_Si5351"
+has been modified to work with this sketch. So must be in your arduino/libraries folder for this sketch to work as intended.
+
+After the your satisfied that the sketch and board are functional, you may wish to improve the accuracy of the RF frequency settings/display. To do so find the line in the sketch that reads as follows:
+        int XtalErr = -9500; // integer value measured to 0.01 Hertz ie 100 = 1.00Hz
+use WWV @ 10MHz to establish the error correction needed, and modify the above line accordingly
+
+QSK T/R relay operation may be adjusted by modifying the parameters used in the, "getNxtKeyStroke(bool Active)" routine. As its configured now, the relay will try to follow symbol (dot/dash) operations, for code sent under 20WPM, and will operate at "letter rate" for code speeds > 20WPM.
+  
