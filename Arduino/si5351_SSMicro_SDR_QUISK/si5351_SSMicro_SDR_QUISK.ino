@@ -1,7 +1,7 @@
 /*
- * JMH 20210128
- *  Minor tweak to cleanup a portion of the getNxtKeyStroke() routine. Removed second condition in if(PTT && Active) statement. Ensuring, when there's no active key streaming, 
- *  the T/R data line is set to "receive". This sometimes would happen using FLDIGI's "TUNE" mode. Because streaming in this mode ends with a "keydown" signal 
+   JMH 20210128
+    Minor tweak to cleanup a portion of the getNxtKeyStroke() routine. Removed second condition in if(PTT && Active) statement. Ensuring, when there's no active key streaming,
+    the T/R data line is set to "receive". This sometimes would happen using FLDIGI's "TUNE" mode. Because streaming in this mode ends with a "keydown" signal
    JMH 20210101
    Streamlined streaming key data buffering and TR relay management(See getNxtKeyStroke() & SetPTT() routines). Also added SpdTbl[41]) to set interval timing Vs WPM (spd) with
    better precision than previous methods afforded.
@@ -75,11 +75,13 @@ boolean KeyActive = false; //Used to recognize external manual keying activity
 boolean AdjDur = false;
 unsigned long BufLpCntr = 100;
 unsigned long AvgPtrVal = 0;
+unsigned long KyDwnTime = 0;
 long BufAdj = 0;
 int contactcntr = 0;
 int OldBufLen = 0;
 int spd = 0;
 int loopcnt = 0;   //delays turning off at the end of what had been a period of active streaming of key data commands
+int AvgKSptr = 0;
 //boolean TXRFON = false;
 float RXcenterFreq = 0.0;
 float TXfreq = 0.0;
@@ -87,54 +89,62 @@ float TXfreq = 0.0;
 unsigned long DlyIntrvl = 0;
 unsigned long lastTime = 0;
 int XtalErr = -9500; // integer value measured to 0.01 Hertz ie 100 = 1.00Hz
-unsigned long SpdTbl[41] = {
-  0,
-  ((1200000 / 16) / 4) - 2400, // special case used during FLDIGI "tune" mode.
-  (1200000 / 2) / 4,
-  (1200000 / 3) / 4,
-  (1200000 / 4) / 4,
-  (1200000 / 5) / 4,
-  (1200000 / 6) / 4,
-  (1200000 / 7) / 4,
-  (1200000 / 8) / 4,
-  (1200000 / 9) / 4,
-  (1200000 / 10) / 4,
-  (1200000 / 11) / 4,
-  (1200000 / 12) / 4,
-  ((1200000 / 13) / 4) - 3300,
-  ((1200000 / 14) / 4) - 3200,
-  ((1200000 / 15) / 4) - 1000,
-  ((1200000 / 16) / 4) - 1100,
-  ((1200000 / 17) / 4) - 1200,
-  ((1200000 / 18) / 4) - 2600,
-  ((1200000 / 19) / 4) - 2600,
-  ((1200000 / 20) / 4) - 1000,
-  ((1200000 / 21) / 4) - 2450,
-  ((1200000 / 22) / 4) - 1300,
-  ((1200000 / 23) / 4) - 2300,
-  ((1200000 / 24) / 4) - 1200,
-  ((1200000 / 25) / 4) - 1175,
-  ((1200000 / 26) / 4) - 1800,
-  ((1200000 / 27) / 4) - 2500,
-  ((1200000 / 28) / 4) - 2660, // - 2714,
-  ((1200000 / 29) / 4) - 2375, // - 3300,
-  ((1200000 / 30) / 4) - 1655,
-  (1200000 / 31) / 4,
-  (1200000 / 32) / 4,
-  (1200000 / 33) / 4,
-  (1200000 / 34) / 4,
-  (1200000 / 35) / 4,
-  (1200000 / 36) / 4,
-  (1200000 / 37) / 4,
-  (1200000 / 38) / 4,
-  (1200000 / 39) / 4,
-  (1200000 / 40) / 4,
+typedef struct
+{
+  unsigned long Intrvl;
+  int Inc;
+  int Dec;
+  int BufDpth;
+}  record_type;
+
+const record_type SpdTbl[41]{
+{0,0,0, 40},
+{((1200000 / 16) / 4) - 2300, 80, 40, 15},
+{((1200000 / 2) / 4), 2, 1, 40},
+{((1200000 / 3) / 4), 2, 1, 40},
+{((1200000 / 4) / 4), 2, 1, 40},
+{((1200000 / 5) / 4) - 830, 3, 15, 8},
+{((1200000 / 6) / 4) - 860, 3, 15, 10},
+{((1200000 / 7) / 4) - 890, 20, 10, 12},
+{((1200000 / 8) / 4) - 890, 20, 10, 15},
+{((1200000 / 9) / 4) - 915, 16, 8, 15},
+{((1200000 / 10) / 4) - 930, 16, 8, 17},
+{((1200000 / 11) / 4) - 940, 8, 4, 20},
+{((1200000 / 12) / 4) - 950, 6, 3, 22},
+{((1200000 / 13) / 4) - 960, 6, 3, 25}, //- 3300
+{((1200000 / 14) / 4) - 975, 6, 3, 25},
+{((1200000 / 15) / 4) - 975, 6, 3, 25},
+{((1200000 / 16) / 4) - 975, 2, 1, 25},
+{((1200000 / 17) / 4) - 1015, 2, 1, 28},
+{((1200000 / 18) / 4) - 1000, 2, 1, 30},
+{((1200000 / 19) / 4) - 1000, 2, 1, 30},
+{((1200000 / 20) / 4) - 1025, 2, 1, 30},
+{((1200000 / 21) / 4) - 1025, 2, 1, 30},
+{((1200000 / 22) / 4) - 1025, 2, 1, 30},
+{((1200000 / 23) / 4) - 1025, 2, 1, 30},
+{((1200000 / 24) / 4) - 1050, 2, 1, 30},
+{((1200000 / 25) / 4) - 1050, 2, 1, 30},
+{((1200000 / 26) / 4) - 1050, 2, 1, 30},
+{((1200000 / 27) / 4) - 1050, 2, 1, 30},
+{((1200000 / 28) / 4) - 1050, 2, 1, 30},
+{((1200000 / 29) / 4) - 1050, 2, 1, 30},
+{((1200000 / 30) / 4) - 900, 2, 1, 30},
+{((1200000 / 31) / 4) - 900, 2, 1, 30},
+{((1200000 / 32) / 4) - 900, 2, 1, 30},
+{((1200000 / 33) / 4) - 900, 2, 1, 30},
+{((1200000 / 34) / 4) - 900, 2, 1, 30},
+{((1200000 / 35) / 4) - 900, 2, 1, 30},
+{(1200000 / 36) / 4, 2, 1, 40},
+{(1200000 / 37) / 4, 2, 1, 40},
+{(1200000 / 38) / 4, 2, 1, 40},
+{(1200000 / 39) / 4, 2, 1, 40},
+{(1200000 / 40) / 4, 0, 0, 40}
 };
 
 void setup()
 {
   // Start serial and initialize the Si5351
-  Serial.begin(9600);
+  Serial.begin(9600);// Serial.begin(115200);//
   si5351.init(SI5351_CRYSTAL_LOAD_10PF, 0, XtalErr);//si5351.init(SI5351_CRYSTAL_LOAD_8PF, 0, XtalErr);
   si5351.set_ms_source(SI5351_CLK0, SI5351_PLLA);
   si5351.set_ms_source(SI5351_CLK1, SI5351_PLLA);
@@ -173,7 +183,7 @@ void loop()
 {
   int KeyOpen = digitalRead(KeyPin);//read Morse Straight Key input pin; Will be high (or int 1) when SSmicro key input is open
   if ( MyserialEvent()) { // check micro serial port for activity
-    //Serial.print(inputString);
+    //Serial.println(inputString);
     //Serial.println(": QUISK msg String"); //echo back new rcvd instruction from QUISK
     if (!KeyActive) { // if the SSmcro is being actively manually keyed, ignore commands/signals coming from the computer
       String CMDstr = inputString.substring(0, 2);
@@ -211,43 +221,10 @@ void loop()
         if (!DlyIntrvl) {//if (!timesUP) {
           PTT = false;//20201229 added
         }
-        //20201229 commented out the following
-        //          if(KeyStream[0]){
-        //            int KSptr;
-        //            bool kydwn = false;
-        //            //scan stream buffer for any pending keydown events
-        //            for (KSptr = 0; KSptr < 510; KSptr++) {
-        //              if( KeyStream[KSptr]==0) break;
-        //            }
-        //            for (int i = 0; i < KSptr; i++) {
-        //              if( KeyStream[i]<90) kydwn = true;
-        //            }
-        //            if(kydwn){
-        //              DldPTToff = true;
-        //              //Serial.println("Set DldPTToff = true");
-        //              //Serial.print("WPM: ");
-        //              //Serial.println(spd);
-        //            }
-        //            else{
-        //              PTT = false;
-        //              //Serial.println("Set PTT = False Active stream but no keydwn data");
-        //              //Serial.print("WPM: ");
-        //              //Serial.println(spd);
-        //            }
-        //          }
-        //          else{
-        //            PTT = false;
-        //            //Serial.println("Set PTT = False");
-        //            //Serial.print("WPM: ");
-        //            //Serial.println(spd);
-        //          }
-
-        //digitalWrite(PTTPin, LOW);  //Set T/R Relay to receive; defer this action until the keyclosed manual input goes high or the stream data sends a key high command
       }
       else if (inputString.substring(0, 2).equals("KS")) { // found info related to cw keying sent by host computer (QUISK) via USB serial port
         // concatenate new keying command(s) with existing stream data
         // 1st, Find the last cmd in the key data buffer
-        //Serial.print("New KeyStream Data: ");
         //Serial.println(inputString);
         int KSptr;
         for (KSptr = 0; KSptr < 510; KSptr++) {
@@ -308,33 +285,19 @@ void loop()
       }
     }
     else { //Manual KeyUp
-      //      if(PTT){
-      //        Serial.print("cntr: ");
-      //        Serial.print(contactcntr);
-      //        Serial.print(";\ttimesUP: ");
-      //        Serial.print(timesUP);
-      //        Serial.print(";\tKeyActive: ");
-      //        if(KeyActive)Serial.println("TRUE");
-      //        else Serial.println("FALSE");
-      //      }
       if (contactcntr > 0 & !KeyClosed) contactcntr = 0; //Contact DeBounce reset
       contactcntr += 1;
       if (contactcntr > 15) { //Contact DeBounce check/pass
         contactcntr = 0;
         if (KeyClosed) {
-          //timesUP = 0;
           StopTX(); // Turn Tx Off;
-          //Serial.println("KEYUP");
-          //timesUP = 300 + millis();
+          //Serial.println("KEYUP");//no longer needed
           DlyIntrvl = 300000;
           lastTime = micros();
 
         }
       }
-      //if (!KeyClosed && (millis() > timesUP) && (timesUP != 0) && KeyActive) { //Added the 'KeyActive" to ensure this code does not operate while streaming CW keying via QUISK/FLDIGI
       if (!KeyClosed && (((unsigned long)(micros() - lastTime) >= DlyIntrvl)) && DlyIntrvl && KeyActive) { //Added the 'KeyActive" to ensure this code does not operate while streaming CW keying via QUISK/FLDIGI
-        //if(!KeyClosed & (micros()>timesUP) & (timesUP!=0) & KeyActive){
-        //timesUP = 0;
         DlyIntrvl = 0;
         PTT = false;
         KeyActive = false;
@@ -345,7 +308,7 @@ void loop()
   }//End Manual Keying ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (!KeyActive ) { // Manage Streaming keying here
-    checkTime();// if needed checktime will do "getNxtKeyStroke()";  
+    checkTime();// if needed checktime will do "getNxtKeyStroke()";
     if (!PTT && !KeyClosed && !DlyIntrvl && digitalRead(PTTPin)) {//KeyClosed flag changes to true with first application of StartTX()//// & StopTX() functions
       digitalWrite(PTTPin, LOW);  //Set T/R Relay to Receive position
       //Serial.println("TR = RX mode");
@@ -543,11 +506,15 @@ void getNxtKeyStroke(unsigned long lateTime) {
       spd = keycmd - 90; //convert keyUp command to its WPM value
       KyUpFlg = true;
       StopTX();
-      //KeyClosed = false;
+      if (KyDwnTime > 0) {
+        //Serial.println(KyDwnTime);
+        KyDwnTime = 0;
+      }
 
     }
     else { // its a "keydown" command
       KyDwnFlg = true;
+
       if (!PTT) {// make sure the TR relay is set to transmitt before applying RF
         digitalWrite(PTTPin, HIGH);  //Set T/R Relay to Transmit position
         Serial.println("Forced PTT ON");
@@ -557,23 +524,15 @@ void getNxtKeyStroke(unsigned long lateTime) {
       loopcnt = 0;
       spd = keycmd - 40; //convert keydown command to its WPM value
       StartTX();
+      KyDwnTime += SpdTbl[spd].Intrvl;
     }
 
-    unsigned long dlyInt = SpdTbl[spd]; //convert this spd to the number of microseconds the standard interval needs to presist
+    unsigned long dlyInt = SpdTbl[spd].Intrvl; //convert this spd to the number of microseconds the standard interval needs to presist
     unsigned long KyUpIntrvl = 0;
     long DlyIntMs;
-    DlyIntrvl = ((dlyInt + BufAdj - lateTime));
+    DlyIntrvl = dlyInt + BufAdj - lateTime;
     if (DlyIntrvl < 7500) DlyIntrvl = 7500;
     lastTime = micros();
-    
-    //        Serial.print("spd: ");
-    //        Serial.print(spd);
-    //        Serial.print("; DlyIntrvl: ");
-    //        Serial.print(DlyIntrvl);
-    //        Serial.print("; BufAdj: ");
-    //        Serial.println(BufAdj);
-
-    
     int KSptr = 0;
     int KyUpCnt = 0;
     bool CntKyUp = true;
@@ -588,41 +547,39 @@ void getNxtKeyStroke(unsigned long lateTime) {
     }
     if (KeyStream[0] == 0) Serial.println("*** BUFFER Zeroed ***");
     //if needed apply corrections interval timing for the current WPM
-    if (KSptr < 30 && AdjDur) { // AdjDur = "false" should inhibit timining corrections for single letter enteries
-      if(OldBufLen > KSptr) BufAdj += 10;// we're still going too fast; need to slow down a bit
-      //BufAdj += 1200/spd;
-    } else if (KSptr > 50) {
-      if(OldBufLen < KSptr) BufAdj -= 5;// we're still falling behind; need to Speed up a bit
-      //BufAdj -= 1200/spd;
+    AvgKSptr = ((19 * AvgKSptr) + KSptr) / 20;
+    KSptr = AvgKSptr;
+
+    if (KSptr < SpdTbl[spd].BufDpth && AdjDur) { // AdjDur = "false" should inhibit timining corrections for single letter enteries
+      if (OldBufLen > KSptr) BufAdj += SpdTbl[spd].Inc; // we're still going too fast; need to slow down a bit
+      if (OldBufLen < KSptr) BufAdj -= SpdTbl[spd].Dec;
+      if (BufAdj > 0){
+        BufAdj = 0;
+        AdjDur = false;
+      }
+    } else if (KSptr > SpdTbl[spd].BufDpth) {
+      //KSptr = AvgKSptr;
+      if (OldBufLen < KSptr) BufAdj -= SpdTbl[spd].Inc; // we're still falling behind; need to Speed up a bit
+      if (OldBufLen > KSptr) BufAdj += SpdTbl[spd].Dec; //we're gaining on the buffer, so we can slow down a bit
       if ((dlyInt + BufAdj) < 7500) BufAdj += 10; // don't reduce interval to something less than a speed > 40WPM
       AdjDur = true;
     }
     OldBufLen = KSptr; //remember how deep the Buffer is;
-    //    Serial.print("spd: ");
-    //    Serial.print(spd);
-//    Serial.print("lateTime: ");
-//    Serial.print(lateTime);
-//    Serial.print("; DlyIntrvl: ");
-//    Serial.println(DlyIntrvl);
-        Serial.print("BufAdj: ");
-        Serial.print(BufAdj);
-        Serial.print("; KSptr: ");
-        Serial.println(KSptr);
 
-    //           Serial.print("KyUpIntrvl: ");
-    //           Serial.print(KyUpIntrvl);
-    //           Serial.print("; dlyInt+BufAdj: ");
-    //           Serial.print(dlyInt+BufAdj);
-    //           Serial.print("; KyUpCnt: ");
-    //           Serial.print(KyUpCnt);
-    //           Serial.print("; KSptr: ");
-    //           Serial.print(KSptr);
-    //           Serial.print("; keycmd: ");
-    //           Serial.print(keycmd);
-    //           Serial.print("; spd: ");
-    //           Serial.println(spd);
-
-    if (dlyInt + BufAdj > 16000) { // for the Key Up intervals are greater than 16ms, make keyup keydwn decisions based on the key number of keyup intervals remaining
+//    Serial.print("spd: ");
+//    Serial.print(spd);
+    //Serial.print("; ");
+    //    Serial.print("lateTime: ");
+    //    Serial.print(lateTime);
+//    Serial.print("DotLen: ");
+//    Serial.print((4*DlyIntrvl)/1000);
+//    Serial.print("; BufAdj: ");
+//    Serial.print(BufAdj);
+//    Serial.print("; KSptr: ");
+//    Serial.print(KSptr);
+//    if(KyUpFlg) Serial.println(" OFF");
+//    if(KyDwnFlg) Serial.println(" ON");
+    if (DlyIntrvl > 16000) { // for the Key Up intervals are greater than 16ms, make keyup keydwn decisions based on the key number of keyup intervals remaining
       if (KyUpCnt > 1) {
         //Serial.println("^^^^^ ");
         SetPTT(false); //(KyUpFlg, KyDwnFlg)
@@ -637,25 +594,6 @@ void getNxtKeyStroke(unsigned long lateTime) {
         SetPTT(true);//New Keydown event is about to happen, So need to prep the T/R relay to get back in TX position before we need to apply RF
       }
     }//END tr decision process for intervals <16ms
-
-    /*
-        BufLpCntr -=1;
-        if(BufLpCntr == 0){
-          AvgPtrVal = AvgPtrVal/100;
-          Serial.print("Buffer Val: ");
-          Serial.print( AvgPtrVal);
-          Serial.print(";  dlyInt: ");
-          Serial.print( dlyInt);
-          Serial.print("; BufAdj: ");
-          Serial.println( BufAdj);
-          //Serial.println("");
-          BufLpCntr =100;
-          AvgPtrVal = 0;
-        }else{
-          AvgPtrVal += KSptr;
-        }
-    */
-
   }//end processing active key stream buffer
   else { //nothing currently in key stream buffer
     //timesUP = 0; // The CW Key command data buffer is empty; clr the timesUP variable
