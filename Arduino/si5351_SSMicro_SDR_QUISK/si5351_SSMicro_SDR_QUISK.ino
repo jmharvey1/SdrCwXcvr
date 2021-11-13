@@ -1,4 +1,9 @@
 /*
+ * JMH 20211111 
+ * added in getNxtKeyStroke routine an extra "if" condition to keep the apparent "timeout" from interrupting the tx output while manually keying the SSMicro
+ * JMH 20210203
+ * Changes to Key Streaming segment [getNxtKeyStroke()]to improve adaptive element timing to maintain a more or less constant buffer depth. 
+ * Also updated is an improved speed table, allowing each speed (5 to 35 WPM) to have custom timing parameters
    JMH 20210128
     Minor tweak to cleanup a portion of the getNxtKeyStroke() routine. Removed second condition in if(PTT && Active) statement. Ensuring, when there's no active key streaming,
     the T/R data line is set to "receive". This sometimes would happen using FLDIGI's "TUNE" mode. Because streaming in this mode ends with a "keydown" signal
@@ -182,6 +187,7 @@ void setup()
 void loop()
 {
   int KeyOpen = digitalRead(KeyPin);//read Morse Straight Key input pin; Will be high (or int 1) when SSmicro key input is open
+  
   if ( MyserialEvent()) { // check micro serial port for activity
     //Serial.println(inputString);
     //Serial.println(": QUISK msg String"); //echo back new rcvd instruction from QUISK
@@ -256,6 +262,7 @@ void loop()
   }//end if Stringcomplete is true
   else if (KeyStream[0] == 0) { //Only look at external manual key signals when no active streaming is being processed
     //Start Manual keying  /////////////////////////////////////////////////////////////////////////////////////////////////////
+    
     if (!KeyOpen) { // looks like SSMicro/Radio is being manually keyed by an external key
       //KeyDown
 
@@ -595,7 +602,7 @@ void getNxtKeyStroke(unsigned long lateTime) {
       }
     }//END tr decision process for intervals <16ms
   }//end processing active key stream buffer
-  else { //nothing currently in key stream buffer
+  else if(!KeyActive) { //JMH 202111 added this "if" condition to keep this timeout reset routine from interrupting the tx output while manually key the SSMicro
     //timesUP = 0; // The CW Key command data buffer is empty; clr the timesUP variable
     lastTime = 0;
     DlyIntrvl = 0;
