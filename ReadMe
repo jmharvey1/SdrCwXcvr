@@ -2,7 +2,7 @@ This repository contains files used to build the CW transceiver
 shown in the YouTube Video at:
 https://youtu.be/vxcRsNkiOTE
 Some general instructions on how the files are to be used will be found here as well.
-Use "SDR 74HC4052_Si5351R2_2020-03-30.zip" found in the Eagle folder, to order a board from a pcb service, like JLCPCB.
+Use "SDR 74HC4052_Si5351R2_2020-03-30.zip" found in the Eagle/SDR 74HC4052 folder, to order a board from a pcb service, like JLCPCB.
 Disclaimer: Some folders found here may not be complete. If you think that's preventing you
 from being able to use them. Please use the "issues" section or the youtube's comments area 
 to describe the problem. Hopefully I will be able to add the missing files.
